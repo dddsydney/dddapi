@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "inputMessage",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "sessionizeQueue",
+      "connection": "AzureWebJobsDashboard"
+    }
+  ],
+  "disabled": false
+}

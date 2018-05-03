@@ -1,0 +1,42 @@
+{
+    "$schema": "http://json.schemastore.org/proxies",
+    "proxies": {
+        "Get Sessions": {
+            "matchCondition": {
+                "route": "/v1/sessions/{year}",
+                "methods": [
+                    "GET"
+                ]
+            },
+            "backendUri": "https://%FunctionWebsiteName%.azurewebsites.net/api/Get-Sessions?code=%FunctionApiKey%&year={year}"
+        },
+        "Lets Encrypt": {
+            "matchCondition": {
+                "route": "/.well-known/acme-challenge/{*rest}"
+            },
+            "backendUri": "https://%FunctionWebsiteName%.azurewebsites.net/api/letsencrypt/{rest}"
+        },
+        "Search Sessions": {
+            "matchCondition": {
+                "route": "/v1/sessions/search/{term}",
+                "methods": [
+                    "GET",
+                    "POST"
+                ]
+            },
+            "backendUri": "https://dddsydney.search.windows.net/indexes/searchable-sessions/docs?api-version=2016-09-01&search={term}",
+            "requestOverrides": {
+                "backend.request.headers.api-key": "%AzureSearchAPIKey%"
+            }
+        },
+        "Swagger": {
+            "matchCondition": {
+                "route": "/.well-known/swagger",
+                "methods": [
+                    "GET"
+                ]
+            },
+            "backendUri": "https://api.dddsydney.com.au/admin/host/swagger?code=%SwaggerKey%"
+        }
+    }
+}

@@ -1,0 +1,100 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "api.dddsydney.com.au",
+    "version": "1.0.0"
+  },
+  "host": "api.dddsydney.com.au",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/api/sessions/{year}": {
+      "get": {
+        "operationId": "/api/sessions/{year}/get",
+        "produces": [],
+        "consumes": [],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The year that you want to get sessions for"
+          }
+        ],
+        "description": "Gets a list of sessions for a particular year that DDD Sydney ran",
+        "responses": {
+          "200": {
+            "description": "Great success!",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Session"
+              }
+            }
+          },
+          "404": {
+            "description": "No sessions found",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Session": {
+      "description": "A session for DDD Sydney",
+      "type": "object",
+      "properties": {
+        "SessionId": {
+          "type": "string",
+          "description": "The unique ID of the session"
+        },
+        "SessionTitle": {
+          "type": "string",
+          "description": "The title of the session"
+        },
+        "SessionAbstract": {
+          "type": "string",
+          "description": "The description of the session"
+        },
+        "PresenterName": {
+          "type": "string",
+          "description": "The name of the presenter(s) for the session"
+        },
+        "PresenterBio": {
+          "type": "string",
+          "description": "The biography of the presenter"
+        },
+        "PresenterWebsite": {
+          "type": "string",
+          "description": "Website of the presenter"
+        },
+        "PresenterTwitterAlias": {
+          "type": "string",
+          "description": "Twitter handle for the presenter"
+        },
+        "RecommendedAudience": {
+          "type": "string",
+          "description": "A description of who this session is targetted for/the level of the talk"
+        }
+      }
+    },
+    "GenericError": {
+      "description": "No sessions were found",
+      "properties": {
+        "Message": {
+          "type": "string",
+          "description": "Telling you what you did wrong"
+        }
+      }
+    }
+  }
+}

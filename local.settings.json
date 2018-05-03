@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureSearchAPIKey": "",
+    "AzureWebJobsDashboard": "",
+    "AzureWebJobsStorage": "",
+    "DDDSydney_Storage": "",
+    "FunctionApiKey": "",
+    "FunctionWebsiteName": "",
+    "FUNCTIONS_EXTENSION_VERSION": "~1",
+    "SessionizeApiKey": "",
+    "SwaggerKey": ""
+  }
+}

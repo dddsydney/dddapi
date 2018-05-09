@@ -8,13 +8,13 @@
                     "GET"
                 ]
             },
-            "backendUri": "https://%FunctionWebsiteName%.azurewebsites.net/api/Get-Sessions?code=%FunctionApiKey%&year={year}"
+            "backendUri": "%FunctionWebsiteName%/api/Get-Sessions?code=%FunctionApiKey%&year={year}"
         },
         "Lets Encrypt": {
             "matchCondition": {
                 "route": "/.well-known/acme-challenge/{*rest}"
             },
-            "backendUri": "https://%FunctionWebsiteName%.azurewebsites.net/api/letsencrypt/{rest}"
+            "backendUri": "%FunctionWebsiteName%/api/letsencrypt/{rest}"
         },
         "Search Sessions": {
             "matchCondition": {
@@ -37,6 +37,15 @@
                 ]
             },
             "backendUri": "https://api.dddsydney.com.au/admin/host/swagger?code=%SwaggerKey%"
+        },
+        "Get Session": {
+            "matchCondition": {
+                "route": "/v1/session/{id}",
+                "methods": [
+                    "GET"
+                ]
+            },
+            "backendUri": "%FunctionWebsiteName%/api/Get-Session?code=%FunctionApiKey%&id={id}"
         }
     }
 }

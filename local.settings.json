@@ -2,11 +2,11 @@
   "IsEncrypted": false,
   "Values": {
     "AzureSearchAPIKey": "",
-    "AzureWebJobsDashboard": "",
-    "AzureWebJobsStorage": "",
-    "DDDSydney_Storage": "",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true;",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true;",
+    "DDDSydney_Storage": "UseDevelopmentStorage=true;",
     "FunctionApiKey": "",
-    "FunctionWebsiteName": "",
+    "FunctionWebsiteName": "http://localhost:7071",
     "FUNCTIONS_EXTENSION_VERSION": "~1",
     "SessionizeApiKey": "",
     "SwaggerKey": ""

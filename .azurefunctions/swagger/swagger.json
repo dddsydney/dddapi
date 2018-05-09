@@ -5,14 +5,14 @@
     "version": "1.0.0"
   },
   "host": "api.dddsydney.com.au",
-  "basePath": "/",
+  "basePath": "/v1",
   "schemes": [
     "https"
   ],
   "paths": {
-    "/api/sessions/{year}": {
+    "/sessions/{year}": {
       "get": {
-        "operationId": "/api/sessions/{year}/get",
+        "operationId": "/sessions/{year}/get",
         "produces": [],
         "consumes": [],
         "parameters": [
@@ -37,6 +37,43 @@
           },
           "404": {
             "description": "No sessions found",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/session/{id}": {
+      "get": {
+        "operationId": "/session/{id}/get",
+        "produces": [],
+        "consumes": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the session you want"
+          }
+        ],
+        "description": "Gets a session details from a DDD Sydney event",
+        "responses": {
+          "200": {
+            "description": "Great success!",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/Session"
+              }
+            }
+          },
+          "404": {
+            "description": "No session found",
             "schema": {
               "type": "object",
               "items": {
@@ -83,7 +120,11 @@
         },
         "RecommendedAudience": {
           "type": "string",
-          "description": "A description of who this session is targetted for/the level of the talk"
+          "description": "A description of who this session is targeted for/the level of the talk"
+        },
+        "Year": {
+          "type": "string",
+          "description": "The year that the session is from"
         }
       }
     },

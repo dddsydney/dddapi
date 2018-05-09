@@ -14,14 +14,14 @@ open Microsoft.WindowsAzure.Storage.Table
 let Run(req: HttpRequestMessage, inTable: IQueryable<Session>, log: TraceWriter) =
     let q =
             req.GetQueryNameValuePairs()
-                |> Seq.tryFind (fun kv -> kv.Key = "year")
+                |> Seq.tryFind (fun kv -> kv.Key = "id")
     match q with
-    | Some kv ->  
-        let pk = sprintf "Session-%s" kv.Value
+    | Some kv ->
+        let id = kv.Value
         let sessions =
             query {
                 for session in inTable do
-                where (session.PartitionKey = pk)
+                where (session.RowKey = id)
                 where (session.Status = 1)
                 select session
             }
@@ -36,6 +36,6 @@ let Run(req: HttpRequestMessage, inTable: IQueryable<Session>, log: TraceWriter)
                                         Year = session.PartitionKey.Replace("Session-", "") })
 
         match Seq.length sessions with
-        | 0 -> req.CreateErrorResponse(HttpStatusCode.NotFound, "We didn't have an event that year")
-        | _ -> req.CreateResponse(HttpStatusCode.OK, sessions)
-    | None -> req.CreateErrorResponse(HttpStatusCode.BadRequest, "No year provided")
+        | 0 -> req.CreateErrorResponse(HttpStatusCode.NotFound, "No matching session")
+        | _ -> req.CreateResponse(HttpStatusCode.OK, sessions |> Seq.item 0)
+    | None -> req.CreateErrorResponse(HttpStatusCode.BadRequest, "No session ID was provided")

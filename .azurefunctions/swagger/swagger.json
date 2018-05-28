@@ -13,7 +13,10 @@
     "/sessions/{year}": {
       "get": {
         "operationId": "/sessions/{year}/get",
-        "produces": [],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
         "consumes": [],
         "parameters": [
           {
@@ -50,7 +53,10 @@
     "/session/{id}": {
       "get": {
         "operationId": "/session/{id}/get",
-        "produces": [],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
         "consumes": [],
         "parameters": [
           {
@@ -74,6 +80,95 @@
           },
           "404": {
             "description": "No session found",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/track-types/{year}": {
+      "get": {
+        "operationId": "/track-types/{year}/get",
+        "description": "Gets the track types that were supported in that year",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [{
+          "name": "year",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "The year that you want to get track types for"
+        }],
+        "responses": {
+          "200": {
+            "description": "Great success!",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TrackType"
+              }
+            }
+          },
+          "404": {
+            "description": "No track types found for that year",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vote/{year}": {
+      "post": {
+        "operationId": "/vote/{year}/post",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [{
+          "name": "year",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "The year that you want to get track types for"
+        }, {
+          "name": "sessionIds",
+          "in": "body",
+          "description": "The sessions which are being voted for",
+          "required": true,
+          "schema":{
+            "type": "string",
+            "maxItems": 10,
+            "minItems": 10,
+            "items": [{
+              "type": "string"
+            }]
+          }
+        }],
+        "responses": {
+          "201": {
+            "description": "Votes recorded"
+          },
+          "400": {
+            "description": "The votes submitted are invalid",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          },
+          "404": {
+            "description": "Voting not found for the specified year",
             "schema": {
               "type": "object",
               "items": {
@@ -125,6 +220,20 @@
         "Year": {
           "type": "string",
           "description": "The year that the session is from"
+        }
+      }
+    },
+    "TrackType": {
+      "description": "The type of track that happened at DDD Sydney",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The id for the track type"
+        },
+        "name": {
+          "type": "string",
+          "description": "The friendly name of the track type"
         }
       }
     },

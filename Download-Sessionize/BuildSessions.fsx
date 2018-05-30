@@ -9,24 +9,23 @@ open Sessionize
 open System
 open Microsoft.WindowsAzure.Storage.Table
 
+module Array =
+    let public findOrNone matcher items =
+        match items |> Array.exists matcher with
+        | true -> Some(items |> Array.find matcher)
+        | _ -> None
+
 let findSpeakers (speakers: array<Guid>) (allSpeakers: array<Speaker>) =
     allSpeakers
     |> Array.filter (fun x -> speakers |> Array.exists (fun s -> x.Id = s))
 
 let getSpeakerLink (title: string) (speaker: Speaker) =
-    match (speaker.Links |> Array.exists (fun link -> link.Title = title)) with
-    | true ->
-        let link = speaker.Links |> Array.find (fun link -> link.Title = title)
-        Some link.Url
-    | _ -> None
-    
-let getCategoryItem (title: string) (id: int) (categories: array<SessionizeCategory>) =
-    match categories |> Array.exists (fun c -> c.Title = title) with
-    | true ->
-        let category = categories |> Array.find (fun c -> c.Title = title)
-        let item = category.Items |> Array.find (fun i -> i.Id = id)
-        Some (item.Name)
-    | _ -> None
+    speaker.Links |> Array.findOrNone (fun link -> link.Title = title)
+
+let getCategoryItem (title: string) (items: array<int>) (categories: array<SessionizeCategory>) =
+    match categories |> Array.findOrNone (fun c -> c.Title = title) with
+    | Some category -> category.Items |> Array.findOrNone (fun ci -> items |> Array.exists(fun i -> i = ci.Id))
+    | None -> None
 
 let makeSession (allSpeakers: array<Speaker>) (categories: array<SessionizeCategory>) (remoteSession: SubmittedSession) =
     let speakers = findSpeakers (remoteSession.Speakers) allSpeakers
@@ -43,26 +42,38 @@ let makeSession (allSpeakers: array<Speaker>) (categories: array<SessionizeCateg
     session.SessionTitle <- remoteSession.Title
     session.SessionAbstract <- remoteSession.Description
 
-    match getCategoryItem "Level" (remoteSession.CategoryItems.[0]) categories with
-    | Some name ->
-        session.RecommendedAudience <- name
+    (match getCategoryItem "Level" (remoteSession.CategoryItems) categories with
+    | Some item ->
+        session.RecommendedAudience <- item.Name
         ignore
-    | None -> ignore
+    | None -> ignore) |> ignore
+
+    (match getCategoryItem "Track Type" (remoteSession.CategoryItems) categories with
+    | Some item ->
+        session.TrackType <- item.Name
+        ignore
+    | None -> ignore) |> ignore
+
+    (match getCategoryItem "Talk length" (remoteSession.CategoryItems) categories with
+    | Some item ->
+        session.SessionLength <- item.Name
+        ignore
+    | None -> ignore) |> ignore
 
     session.PresenterName <- speakerNames
     session.PresenterEmail <- ""
-    
-    match getSpeakerLink "Twitter" firstSpeaker with
-    | Some url ->
-        session.PresenterTwitterAlias <- url
-        ignore
-    | None -> ignore
 
-    match getSpeakerLink "Blog" firstSpeaker with
-    | Some url ->
-        session.PresenterWebsite <- url
+    (match getSpeakerLink "Twitter" firstSpeaker with
+    | Some link ->
+        session.PresenterTwitterAlias <- link.Url
         ignore
-    | None -> ignore
+    | None -> ignore) |> ignore
+
+    (match getSpeakerLink "Blog" firstSpeaker with
+    | Some link ->
+        session.PresenterWebsite <- link.Url
+        ignore
+    | None -> ignore) |> ignore
 
     session.PresenterBio <- firstSpeaker.Bio
     session.SubmittedDateUtc <- DateTime.Now

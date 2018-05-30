@@ -103,8 +103,8 @@ let Run(timer: TimerInfo, sessionsSource: IQueryable<Session>, sessionsDest: ICo
         select session
     }
 
-    addNewSessions log remoteSessions existingSessions sessionsDest
-    updateSessions log remoteSessions existingSessions table
+    (addNewSessions log remoteSessions existingSessions sessionsDest) |> ignore
+    (updateSessions log remoteSessions existingSessions table) |> ignore
 
     log.Info("Writing to queue")
     

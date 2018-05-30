@@ -33,7 +33,9 @@ let Run(req: HttpRequestMessage, inTable: IQueryable<Session>, log: TraceWriter)
                                         RecommendedAudience = session.RecommendedAudience;
                                         PresenterTwitterAlias = session.PresenterTwitterAlias;
                                         PresenterWebsite = session.PresenterWebsite
-                                        Year = session.PartitionKey.Replace("Session-", "") })
+                                        Year = session.PartitionKey.Replace("Session-", "")
+                                        TrackType = session.TrackType
+                                        SessionLength = session.SessionLength })
 
         match Seq.length sessions with
         | 0 -> req.CreateErrorResponse(HttpStatusCode.NotFound, "No matching session")

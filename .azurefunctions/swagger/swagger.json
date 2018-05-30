@@ -220,6 +220,14 @@
         "Year": {
           "type": "string",
           "description": "The year that the session is from"
+        },
+        "SessionLength": {
+          "type": "string",
+          "description": "The length of the session (45 minutes or 20 minutes)"
+        },
+        "TrackType": {
+          "type": "string",
+          "description": "What track does the session fall into"
         }
       }
     },

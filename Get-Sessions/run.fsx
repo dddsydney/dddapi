@@ -33,7 +33,9 @@ let Run(req: HttpRequestMessage, inTable: IQueryable<Session>, log: TraceWriter)
                                         RecommendedAudience = session.RecommendedAudience;
                                         PresenterTwitterAlias = session.PresenterTwitterAlias;
                                         PresenterWebsite = session.PresenterWebsite
-                                        Year = session.PartitionKey.Replace("Session-", "") })
+                                        Year = session.PartitionKey.Replace("Session-", "");
+                                        SessionLength = session.SessionLength;
+                                        TrackType = session.TrackType })
 
         match Seq.length sessions with
         | 0 -> req.CreateErrorResponse(HttpStatusCode.NotFound, "We didn't have an event that year")

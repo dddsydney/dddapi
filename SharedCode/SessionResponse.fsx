@@ -11,4 +11,6 @@ type ResponseSession =
       [<field: DataMember(Name="PresenterTwitterAlias")>]PresenterTwitterAlias: string
       [<field: DataMember(Name="PresenterWebsite")>]PresenterWebsite: string
       [<field: DataMember(Name="RecommendedAudience")>]RecommendedAudience: string
-      [<field: DataMember(Name="Year")>]Year: string }
+      [<field: DataMember(Name="Year")>]Year: string
+      [<field: DataMember(Name="TrackType")>]TrackType: string
+      [<field: DataMember(Name="SessionLength")>]SessionLength: string }

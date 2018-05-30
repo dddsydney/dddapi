@@ -17,4 +17,6 @@ type Session() =
     member val SubmittedDateUtc: DateTime = DateTime.MinValue with get, set
     member val Status: int = 0 with get, set
     member val RemoteId: int = 0 with get, set
+    member val SessionLength: string = null with get, set
+    member val TrackType: string = null with get, set
     // member val SubmitterIp: string = null with get, set

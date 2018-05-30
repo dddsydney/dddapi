@@ -10,6 +10,13 @@
       "presentation": {
         "reveal": "always"
       },
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "powershell.exe"  
+          }
+        }
+      },
       "problemMatcher": [
         {
           "owner": "azureFunctions",

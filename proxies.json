@@ -36,7 +36,7 @@
                     "GET"
                 ]
             },
-            "backendUri": "https://api.dddsydney.com.au/admin/host/swagger?code=%SwaggerKey%"
+            "backendUri": "%FunctionWebsiteName%/admin/host/swagger?code=%SwaggerKey%"
         },
         "Get Session": {
             "matchCondition": {
@@ -46,6 +46,15 @@
                 ]
             },
             "backendUri": "%FunctionWebsiteName%/api/Get-Session?code=%FunctionApiKey%&id={id}"
+        },
+        "Vote": {
+            "matchCondition": {
+                "route": "/v1/vote/{year}",
+                "methods": [
+                    "POST"
+                ]
+            },
+            "backendUri": "%FunctionWebsiteName%/api/Save-Vote?code=%FunctionApiKey%&year={year}"
         }
     }
 }

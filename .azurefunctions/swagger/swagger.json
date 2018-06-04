@@ -148,7 +148,7 @@
           "schema":{
             "type": "string",
             "maxItems": 10,
-            "minItems": 10,
+            "minItems": 1,
             "items": [{
               "type": "string"
             }]

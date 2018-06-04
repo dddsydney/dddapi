@@ -26,8 +26,8 @@ let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable:
                 |> Seq.tryFind (fun kv -> kv.Key = "year")
         match q with
         | Some kv ->
-            //let now = DateTimeOffset.Now
-            let now = DateTimeOffset(2018, 06, 14, 08, 00, 00, 00, TimeSpan.FromHours(8.0))
+            let now = DateTimeOffset.Now
+            //let now = DateTimeOffset(2018, 06, 14, 08, 00, 00, 00, TimeSpan.FromHours(8.0))
 
             let year = kv.Value
 

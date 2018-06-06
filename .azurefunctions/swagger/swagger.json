@@ -143,15 +143,9 @@
         }, {
           "name": "sessionIds",
           "in": "body",
-          "description": "The sessions which are being voted for",
-          "required": true,
-          "schema":{
-            "type": "string",
-            "maxItems": 10,
-            "minItems": 1,
-            "items": [{
-              "type": "string"
-            }]
+          "description": "The vote request",
+          "schema": {
+            "$ref": "#/definitions/Votes"
           }
         }],
         "responses": {
@@ -251,6 +245,27 @@
         "Message": {
           "type": "string",
           "description": "Telling you what you did wrong"
+        }
+      }
+    },
+    "Votes": {
+      "description": "A vote placed by a user",
+      "properties": {
+        "ticketNumber": {
+          "type": "string",
+          "description": "Optionally provided ticket number of the voter"
+        },
+        "sessionIds": {
+          "type": "array",
+          "description": "The ID's of the sessions being voted for",
+          "items":{
+            "type": "string",
+            "maxItems": 5,
+            "minItems": 1,
+            "items": [{
+              "type": "string"
+            }]
+          }
         }
       }
     }

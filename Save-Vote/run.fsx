@@ -19,6 +19,9 @@ open System.Net.Http
 open Microsoft.WindowsAzure.Storage.Table
 open Newtonsoft.Json
 
+type UserVote = { TicketNumber: string
+                  SessionIds: array<string> }
+
 let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable: ICollector<Vote>, log: TraceWriter) =
     async {
         let q =
@@ -34,7 +37,8 @@ let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable:
             match validVotingPeriod now year with
             | true ->
                 let! content = req.Content.ReadAsStringAsync() |> Async.AwaitTask
-                let ids = content |> JsonConvert.DeserializeObject<string[]>
+                let userVote = content |> JsonConvert.DeserializeObject<UserVote>
+                let ids = userVote.SessionIds
 
                 let sessionsPartionKey = sprintf "Session-%s" year
                 let sessions =
@@ -56,7 +60,8 @@ let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable:
                                                          RowKey = Guid.NewGuid().ToString()
                                                          SessionId = Guid(id)
                                                          IpAddress = ip.Address
-                                                         SubmittedDateUTC = DateTimeOffset.Now }
+                                                         SubmittedDateUTC = DateTimeOffset.Now
+                                                         TicketNumber = userVote.TicketNumber }
                                             votesTable.Add vote)
 
                     return req.CreateResponse(HttpStatusCode.Created)

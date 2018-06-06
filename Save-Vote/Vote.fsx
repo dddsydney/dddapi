@@ -7,4 +7,5 @@ type Vote = {
     IpAddress: string
     SessionId: Guid
     SubmittedDateUTC: DateTimeOffset
+    TicketNumber: string
 }

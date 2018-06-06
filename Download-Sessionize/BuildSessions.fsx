@@ -65,7 +65,7 @@ let makeSession (allSpeakers: array<Speaker>) (categories: array<SessionizeCateg
 
     (match getSpeakerLink "Twitter" firstSpeaker with
     | Some link ->
-        session.PresenterTwitterAlias <- link.Url
+        session.PresenterTwitterAlias <- link.Url.Replace("https://twitter.com/", "")
         ignore
     | None -> ignore) |> ignore
 

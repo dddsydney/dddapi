@@ -1,7 +1,9 @@
+open System.Web
 #load "./Vote.fsx"
 #load "./VotingPeriods.fsx"
 #load "../SharedCode/SessionTableEntity.fsx"
 
+#r "System.Web"
 #r "System.Net.Http"
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
@@ -22,6 +24,17 @@ open Newtonsoft.Json
 type UserVote = { TicketNumber: string
                   SessionIds: array<string> }
 
+let getIpAddress (req: HttpRequestMessage) =
+    match req.Properties.ContainsKey("MS_HttpContext") with
+    | true ->
+        let ctx = req.Properties.["MS_HttpContext"] :?> HttpContextWrapper
+        ctx.Request.UserHostAddress
+    | false -> match req.Properties.ContainsKey(RemoteEndpointMessageProperty.Name) with
+               | true ->
+                   let ip = req.Properties.[RemoteEndpointMessageProperty.Name] :?> RemoteEndpointMessageProperty
+                   ip.Address
+               | _ -> ""
+
 let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable: ICollector<Vote>, log: TraceWriter) =
     async {
         let q =
@@ -30,7 +43,7 @@ let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable:
         match q with
         | Some kv ->
             let now = DateTimeOffset.Now
-            //let now = DateTimeOffset(2018, 06, 14, 08, 00, 00, 00, TimeSpan.FromHours(8.0))
+            //let now = DateTimeOffset(2018, 06, 15, 08, 00, 00, 00, TimeSpan.FromHours(8.0))
 
             let year = kv.Value
 
@@ -49,7 +62,7 @@ let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable:
                             select session
                         }
 
-                let ip = req.Properties.[RemoteEndpointMessageProperty.Name] :?> RemoteEndpointMessageProperty
+                let ipAddress = getIpAddress req
 
                 let votedSessions = sessions |> Seq.filter(fun s -> ids |> Array.exists(fun id -> id = s.RowKey))
 
@@ -59,7 +72,7 @@ let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable:
                                             let vote = { PartitionKey = year
                                                          RowKey = Guid.NewGuid().ToString()
                                                          SessionId = Guid(id)
-                                                         IpAddress = ip.Address
+                                                         IpAddress = ipAddress
                                                          SubmittedDateUTC = DateTimeOffset.Now
                                                          TicketNumber = userVote.TicketNumber }
                                             votesTable.Add vote)

@@ -8,7 +8,6 @@
     "FunctionApiKey": "",
     "FunctionWebsiteName": "http://localhost:7071",
     "FUNCTIONS_EXTENSION_VERSION": "~1",
-    "SessionizeApiKey": "",
-    "SwaggerKey": ""
+    "SessionizeApiKey": ""
   }
 }

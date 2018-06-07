@@ -1,75 +1,70 @@
 namespace DDDApi.Functions
 open DDDApi
-open Microsoft.Azure.WebJobs
-open Microsoft.Azure.WebJobs.Host
 
-open System
-// open System.ServiceModel.Channels 
-open System.Linq
-open System.Net
 open System.Net.Http
 open Microsoft.WindowsAzure.Storage.Table
 open Newtonsoft.Json
+open Microsoft.AspNetCore.Mvc
+open Microsoft.AspNetCore.Http
+open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.Http
+open Microsoft.Azure.WebJobs.Host
+open System
+open System.IO
+open DDDApi.Voting
+open FSharp.Azure.Storage.Table
+open DDDApi.azureTableUtils
 
 type UserVote = { TicketNumber: string
                   SessionIds: array<string> }
 
 module VotingFunctions =
+    let getIpAddress (req: HttpRequest) =
+        let ip = req.HttpContext.Connection.RemoteIpAddress.MapToIPv4()
+        ip.ToString()
 
-    let Run(req: HttpRequestMessage, sessionsTable: IQueryable<Session>, votesTable: ICollector<Vote>, log: TraceWriter) =
+    [<FunctionName("Vote_for_session")>]
+    let saveVote([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Save-Vote/{year}")>] req: HttpRequest,
+                 [<Table("Sessions")>]sessionsSource: CloudTable,
+                 [<Table("Votes")>]votesTable: CloudTable,
+                 year: string,
+                 log: TraceWriter) =
         async {
-            let q =
-                req.GetQueryNameValuePairs()
-                    |> Seq.tryFind (fun kv -> kv.Key = "year")
-            match q with
-            | Some kv ->
-                //let now = DateTimeOffset.Now
-                let now = DateTimeOffset(2018, 06, 14, 08, 00, 00, 00, TimeSpan.FromHours(8.0))
+            //let now = DateTimeOffset.Now
+            let now = DateTimeOffset(2018, 06, 14, 08, 00, 00, 00, TimeSpan.FromHours(8.0))
 
-                let year = kv.Value
-                
-                log.Info(sprintf "Looking for votes in %s" year)
+            log.Info(sprintf "Looking for votes in %s" year)
 
-                match validVotingPeriod now year with
+            match validVotingPeriod now year with
+            | true ->
+                use reader = new StreamReader(req.Body)
+                let! content = reader.ReadToEndAsync() |> Async.AwaitTask
+
+                let userVote = content |> JsonConvert.DeserializeObject<UserVote>
+                let ids = userVote.SessionIds
+
+                let sessionsPartionKey = sprintf "Session-%s" year
+
+                let sessions = Query.all<Session>
+                               |> Query.where <@ fun s m -> m.PartitionKey = sessionsPartionKey && s.Status = 1 @>
+                               |> fromTableToClient sessionsSource
+                               |> Seq.map (fun (s, _) -> s)
+
+                let votedSessions = sessions |> Seq.filter(fun s -> ids |> Array.exists(fun id -> id = s.RowKey))
+
+                match Seq.length votedSessions = Array.length ids with
                 | true ->
-                    let! content = req.Content.ReadAsStringAsync() |> Async.AwaitTask
-                    let userVote = content |> JsonConvert.DeserializeObject<UserVote>
-                    let ids = userVote.SessionIds
-                    
-                    log.Info(userVote.TicketNumber)
+                    let ipAddress = getIpAddress req
+                    ids |> Seq.iter (fun id ->
+                                            let vote = { PartitionKey = year
+                                                         RowKey = Guid.NewGuid().ToString()
+                                                         SessionId = Guid(id)
+                                                         IpAddress = ipAddress
+                                                         SubmittedDateUTC = DateTimeOffset.Now
+                                                         TicketNumber = userVote.TicketNumber }
+                                            vote |> Insert |> inTableToClient votesTable |> ignore)
 
-                    //let ip = req.Properties.[RemoteEndpointMessageProperty.Name] :?> RemoteEndpointMessageProperty
-
-                    //log.Info(ip.Address)
-
-                    let sessionsPartionKey = sprintf "Session-%s" year
-
-                    log.Info(sessionsPartionKey)
-
-                    let sessions =
-                            query {
-                                for session in sessionsTable do
-                                where (session.PartitionKey = sessionsPartionKey)
-                                where (session.Status = 1)
-                                select session
-                            }
-
-                    let votedSessions = sessions |> Seq.filter(fun s -> ids |> Array.exists(fun id -> id = s.RowKey))
-
-                    match Seq.length votedSessions = Array.length ids with
-                    | true ->
-                        ids |> Seq.iter (fun id ->
-                                                let vote = { PartitionKey = year
-                                                             RowKey = Guid.NewGuid().ToString()
-                                                             SessionId = Guid(id)
-                                                             IpAddress = "" //ip.Address
-                                                             SubmittedDateUTC = DateTimeOffset.Now
-                                                             TicketNumber = userVote.TicketNumber }
-                                                votesTable.Add vote)
-
-                        return req.CreateResponse(HttpStatusCode.Created)
-                    | false -> return req.CreateErrorResponse(HttpStatusCode.BadRequest, "Voted sessions are outside of the current year")
-                | false -> return req.CreateErrorResponse(HttpStatusCode.BadRequest, "Voting for that year is closed")
-            | None -> return req.CreateErrorResponse(HttpStatusCode.BadRequest, "No year provided")
-
+                    return StatusCodeResult(201) :> IActionResult
+                | false -> return BadRequestObjectResult("Voted sessions are outside of the current year") :> IActionResult
+            | false -> return BadRequestObjectResult("Voting for that year is closed") :> IActionResult
         } |> Async.StartAsTask

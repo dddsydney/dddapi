@@ -5,6 +5,7 @@ open Microsoft.Azure.WebJobs
 open Microsoft.WindowsAzure.Storage.Table
 open DDDApi
 open Microsoft.Azure.WebJobs.Host
+open FSharp.Azure.Storage.Table
 
 module SessionizeFunctions =
     [<FunctionName("Download_Sessionzie_data")>]
@@ -27,11 +28,11 @@ module SessionizeFunctions =
             let remoteSessions = sessionize.Sessions
                                 |> Array.map makeSession'
 
-            let existingSessions = query {
-                for session in sessionsSource do
-                where (session.PartitionKey = "Session-2018")
-                select session
-            }
+            let existingSessions = Query.all<Session>
+                                   |> Query.where <@ fun _ s -> s.PartitionKey = "Session-2018" @>
+                                   |> fromTable sessionsSource.ServiceClient sessionsSource.Name
+                                   |> Seq.map(fun (s, _) -> s)
+
 
             (SessionizeApi.addNewSessions log remoteSessions existingSessions sessionsSource) |> ignore
             (SessionizeApi.updateSessions log remoteSessions existingSessions sessionsSource) |> ignore

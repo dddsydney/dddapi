@@ -15,11 +15,13 @@
     <Content Include="proxies.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Compile Include="azureTableUtils.fs" />
     <Compile Include="SessionFunctions.fs" />
     <Compile Include="SessionizeFunctions.fs" />
     <Compile Include="VotingFunctions.fs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FSharp.Azure.Storage" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.7" />
   </ItemGroup>

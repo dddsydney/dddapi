@@ -80,7 +80,7 @@ module SessionizeApi =
 
         session
 
-    let addNewSessions (log: TraceWriter) (remoteSessions: array<Session>) (existingSessions: IQueryable<Session>) (table: CloudTable) =
+    let addNewSessions (log: TraceWriter) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
         let newSessions = remoteSessions
                             |> Array.filter (fun rs ->
                                 let m = existingSessions
@@ -97,7 +97,7 @@ module SessionizeApi =
         // newSessions |> Array.iter table.CreateAsync
         newSessions
 
-    let updateSessions (log: TraceWriter) (remoteSessions: array<Session>) (existingSessions: IQueryable<Session>) (table: CloudTable) =
+    let updateSessions (log: TraceWriter) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
         let updatableSessions = existingSessions
                                 |> Seq.filter (fun es ->
                                     let m = remoteSessions

@@ -1,0 +1,118 @@
+{
+  "sessions": [
+    {
+      "id": "42751",
+      "title": "Title of a session",
+      "description": "This is an example of a body",
+      "startsAt": null,
+      "endsAt": null,
+      "isServiceSession": false,
+      "isPlenumSession": false,
+      "speakers": [
+        "2134076e-1942-45a6-ad4c-893e9d5c2030"
+      ],
+      "categoryItems": [
+        9103
+      ],
+      "questionAnswers": [],
+      "roomId": null
+    }
+  ],
+  "speakers": [
+    {
+      "id": "101230eb-77c7-4e8b-a336-91ded9230935",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "bio": "Bio about a person",
+      "tagLine": "Something short",
+      "profilePicture": "",
+      "isTopSpeaker": false,
+      "links": [
+        {
+          "title": "Twitter",
+          "url": "https://twitter.com/person",
+          "linkType": "Twitter"
+        }
+      ],
+      "sessions": [
+        46542
+      ],
+      "fullName": "Full Name"
+    }
+  ],
+  "questions": [],
+  "categories": [
+    {
+      "id": 1939,
+      "title": "Level",
+      "items": [
+        {
+          "id": 9101,
+          "name": "Introductory and overview",
+          "sort": 1
+        },
+        {
+          "id": 9102,
+          "name": "Intermediate",
+          "sort": 2
+        },
+        {
+          "id": 9103,
+          "name": "Advanced",
+          "sort": 3
+        },
+        {
+          "id": 9104,
+          "name": "Expert",
+          "sort": 4
+        }
+      ],
+      "sort": 1
+    },
+    {
+      "id": 2092,
+      "title": "Track Type",
+      "items": [
+        {
+          "id": 9789,
+          "name": "Developer",
+          "sort": 1
+        },
+        {
+          "id": 9790,
+          "name": "Design",
+          "sort": 2
+        },
+        {
+          "id": 9791,
+          "name": "Data",
+          "sort": 3
+        },
+        {
+          "id": 9792,
+          "name": "Junior Dev",
+          "sort": 4
+        }
+      ],
+      "sort": 5
+    },
+    {
+      "id": 2140,
+      "title": "Talk length",
+      "items": [
+        {
+          "id": 10158,
+          "name": "20 minutes",
+          "sort": 1
+        },
+        {
+          "id": 10159,
+          "name": "45 minutes",
+          "sort": 2
+        }
+      ],
+      "sort": 9
+    }
+  ],
+  "rooms": []
+}

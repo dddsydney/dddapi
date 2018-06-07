@@ -1,40 +1,61 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Run Functions Host",
-      "identifier": "runFunctionsHost",
-      "type": "shell",
-      "command": "npx func host start",
-      "isBackground": true,
-      "presentation": {
-        "reveal": "always"
-      },
-      "windows": {
-        "options": {
-          "shell": {
-            "executable": "powershell.exe"  
-          }
-        }
-      },
-      "problemMatcher": [
-        {
-          "owner": "azureFunctions",
-          "pattern": [
-            {
-              "regexp": "\\b\\B",
-              "file": 1,
-              "location": 2,
-              "message": 3
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "command": "dotnet build",
+        "type": "shell",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "silent"
+        },
+        "problemMatcher": "$msCompile",
+        "windows": {
+          "options": {
+            "shell": {
+              "executable": "powershell.exe"
             }
-          ],
-          "background": {
-            "activeOnStart": true,
-            "beginsPattern": "^.*Stopping host.*",
-            "endsPattern": "^.*Job host started.*"
           }
         }
-      ]
-    }
-  ]
-}
+      },
+      {
+        "label": "publish",
+        "command": "dotnet publish",
+        "dependsOn": "build",
+        "type": "shell",
+        "problemMatcher": [],
+        "windows": {
+          "options": {
+            "shell": {
+              "executable": "powershell.exe"
+            }
+          }
+        }
+      },
+      {
+        "label": "run func",
+        "command": "cd DDDApi.Functions;func start --script-root bin/debug/netstandard2.0/publish",
+        "dependsOn": "publish",
+        "type": "shell",
+        "problemMatcher": [],
+        "windows": {
+          "options": {
+            "shell": {
+              "executable": "powershell.exe"
+            }
+          }
+        }
+      },
+    //   {
+    //     "label": "run test",
+    //     "command": "dotnet run --project 'TicTacToe.Tests/TicTacToe.Tests.fsproj'",
+    //     "type": "shell",
+    //     "problemMatcher": []
+    //   }
+    ]
+  }

@@ -1,4 +1,4 @@
-#r "Microsoft.WindowsAzure.Storage"
+namespace DDDApi
 
 open System
 open Microsoft.WindowsAzure.Storage.Table

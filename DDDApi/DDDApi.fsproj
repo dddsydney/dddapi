@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="SessionTableEntity.fs" />
+    <Compile Include="SessionResponse.fs" />
+    <Compile Include="Array.fs" />
+    <Compile Include="SessionizeApi.fs" />
+    <Content Include="../sessionize-sample.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="Vote.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.7" />
+    <PackageReference Include="FSharp.Data" Version="3.0.0-beta3" />
+  </ItemGroup>
+</Project>

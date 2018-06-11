@@ -45,24 +45,26 @@ module VotingFunctions =
 
                 let sessionsPartionKey = sprintf "Session-%s" year
 
-                let sessions = Query.all<Session>
+                let! sessions = Query.all<Session>
                                |> Query.where <@ fun s m -> m.PartitionKey = sessionsPartionKey && s.Status = 1 @>
-                               |> fromTableToClient sessionsSource
-                               |> Seq.map (fun (s, _) -> s)
+                               |> fromTableToClientAsync sessionsSource
 
-                let votedSessions = sessions |> Seq.filter(fun s -> ids |> Array.exists(fun id -> id = s.RowKey))
+                let votedSessions = sessions |> Seq.filter(fun (s, _) -> ids |> Array.exists(fun id -> id = s.RowKey))
 
                 match Seq.length votedSessions = Array.length ids with
                 | true ->
                     let ipAddress = getIpAddress req
-                    ids |> Seq.iter (fun id ->
-                                            let vote = { PartitionKey = year
-                                                         RowKey = Guid.NewGuid().ToString()
-                                                         SessionId = Guid(id)
-                                                         IpAddress = ipAddress
-                                                         SubmittedDateUTC = DateTimeOffset.Now
-                                                         TicketNumber = userVote.TicketNumber }
-                                            vote |> Insert |> inTableToClient votesTable |> ignore)
+                    ids |> Seq.iter (fun id -> let vote = { PartitionKey = year
+                                                            RowKey = Guid.NewGuid().ToString()
+                                                            SessionId = Guid(id)
+                                                            IpAddress = ipAddress
+                                                            SubmittedDateUTC = DateTimeOffset.Now
+                                                            TicketNumber = userVote.TicketNumber }
+                                               vote
+                                               |> Insert
+                                               |> inTableToClientAsync votesTable
+                                               |> Async.RunSynchronously
+                                               |> ignore)
 
                     return StatusCodeResult(201) :> IActionResult
                 | false -> return BadRequestObjectResult("Voted sessions are outside of the current year") :> IActionResult

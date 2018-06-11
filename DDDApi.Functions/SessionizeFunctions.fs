@@ -4,6 +4,7 @@ open Microsoft.Extensions.Configuration
 open Microsoft.Azure.WebJobs
 open Microsoft.WindowsAzure.Storage.Table
 open DDDApi
+open DDDApi.SessionizeApi
 open Microsoft.Azure.WebJobs.Host
 open FSharp.Azure.Storage.Table
 
@@ -34,8 +35,8 @@ module SessionizeFunctions =
                                    |> Seq.map(fun (s, _) -> s)
 
 
-            (SessionizeApi.addNewSessions log remoteSessions existingSessions sessionsSource) |> ignore
-            (SessionizeApi.updateSessions log remoteSessions existingSessions sessionsSource) |> ignore
+            (addNewSessions log remoteSessions existingSessions sessionsSource) |> ignore
+            (updateSessions log remoteSessions existingSessions sessionsSource) |> ignore
 
             log.Info("Writing to queue")
 

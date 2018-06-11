@@ -15,10 +15,14 @@
     <Content Include="proxies.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include=".azurefunctions/swagger/swagger.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="azureTableUtils.fs" />
     <Compile Include="SessionFunctions.fs" />
     <Compile Include="SessionizeFunctions.fs" />
     <Compile Include="VotingFunctions.fs" />
+    <Compile Include="DocumentationFunctions.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Azure.Storage" Version="3.0.0" />

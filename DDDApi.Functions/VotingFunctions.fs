@@ -30,9 +30,7 @@ module VotingFunctions =
                  year: string,
                  log: TraceWriter) =
         async {
-            //let now = DateTimeOffset.Now
-            let now = DateTimeOffset(2018, 06, 14, 08, 00, 00, 00, TimeSpan.FromHours(8.0))
-
+            let now = DateTimeOffset.Now
             log.Info(sprintf "Looking for votes in %s" year)
 
             match validVotingPeriod now year with

@@ -1,0 +1,24 @@
+{
+  "name": "dddapi",
+  "version": "1.0.0",
+  "description": "This project represents a series of Azure functions used by DDD Sydney to provide is backend functionality.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "azure-functions-core-tools": "^2.0.1-beta.31"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dddsydney/dddapi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dddsydney/dddapi/issues"
+  },
+  "homepage": "https://github.com/dddsydney/dddapi#readme"
+}

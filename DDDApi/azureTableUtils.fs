@@ -10,3 +10,4 @@ module azureTableUtils =
     let inTableToClient (table: CloudTable) o = inTable table.ServiceClient table.Name o
 
     let inTableToClientAsBatch (table: CloudTable) o = inTableAsBatch table.ServiceClient table.Name o
+    let inTableToClientAsBatchAsync (table: CloudTable) o = inTableAsBatchAsync table.ServiceClient table.Name o

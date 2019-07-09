@@ -11,6 +11,7 @@
     <Compile Include="v1\AgendaFunctions.fs" />
     <Compile Include="v1\VotingFunctions.fs" />
     <Compile Include="v1\SessionFunctions.fs" />
+    <Compile Include="v2\SessionAdminFunctions.fs" />
     <Compile Include="v2\SessionFunctions.fs" />
     <Content Include="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

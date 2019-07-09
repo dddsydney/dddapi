@@ -2,10 +2,8 @@ namespace DDDApi
 
 open FSharp.Data
 open System
-open Microsoft.Azure.WebJobs.Host
-open System.Linq
-open Microsoft.Azure.WebJobs
 open Microsoft.WindowsAzure.Storage.Table
+open Microsoft.Extensions.Logging
 
 module SessionizeApi =
     type Sessionize = JsonProvider<"../sessionize-sample.json">
@@ -80,7 +78,7 @@ module SessionizeApi =
 
         session
 
-    let addNewSessions (log: TraceWriter) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
+    let addNewSessions (log: ILogger) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
         let newSessions = remoteSessions
                             |> Array.filter (fun rs ->
                                 let m = existingSessions
@@ -90,14 +88,14 @@ module SessionizeApi =
                                 | _ -> false
                                 )
 
-        log.Info(
+        log.LogInformation(
             sprintf "Found %d new sessions" (Array.length newSessions)
         )
 
         // newSessions |> Array.iter table.CreateAsync
         newSessions
 
-    let updateSessions (log: TraceWriter) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
+    let updateSessions (log: ILogger) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
         let updatableSessions = existingSessions
                                 |> Seq.filter (fun es ->
                                     let m = remoteSessions
@@ -106,7 +104,7 @@ module SessionizeApi =
                                     | 0 -> false
                                     | _ -> true
                                     )
-        log.Info(
+        log.LogInformation(
             sprintf "Found %d updatable sessions" (Seq.length updatableSessions)
         )
 

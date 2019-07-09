@@ -9,7 +9,7 @@ open System.IO
 module DocumentationFunctions =
 
     [<FunctionName("Get_Swagger")>]
-    let getSwagger([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Get-Swagger")>] req: HttpRequest,
+    let getSwagger([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "api/v1/Get-Swagger")>] req: HttpRequest,
                    context: ExecutionContext) =
 
         let path = Path.Combine(context.FunctionDirectory, ".azurefunctions", "swagger", "swagger.json")

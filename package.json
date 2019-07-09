@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
-    "azure-functions-core-tools": "^2.0.1-beta.31"
+    "azure-functions-core-tools": "^2.7.1373"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

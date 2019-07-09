@@ -5,16 +5,16 @@ open Microsoft.Azure.WebJobs
 open Microsoft.WindowsAzure.Storage.Table
 open DDDApi
 open DDDApi.SessionizeApi
-open Microsoft.Azure.WebJobs.Host
 open FSharp.Azure.Storage.Table
+open Microsoft.Extensions.Logging
 
 module SessionizeFunctions =
     [<FunctionName("Download_Sessionzie_data")>]
     let downloadSessionize([<TimerTrigger("0 5 * * * *")>]timer: TimerInfo,
                            [<Table("Session")>]sessionsSource: CloudTable,
                            context: ExecutionContext,
-                           log: TraceWriter) =
-        let config = (new ConfigurationBuilder())
+                           log: ILogger) =
+        let config = (ConfigurationBuilder())
                         .SetBasePath(context.FunctionAppDirectory)
                         .AddJsonFile("local.settings.json", true, true)
                         .AddEnvironmentVariables()
@@ -22,9 +22,9 @@ module SessionizeFunctions =
 
         let apiKey = config.["Sessionize.ApiKey"]
         async {
-            let! sessionize = SessionizeApi.downloadSessionize apiKey
+            let! sessionize = downloadSessionize apiKey
 
-            let makeSession' = SessionizeApi.makeSession sessionize.Speakers sessionize.Categories
+            let makeSession' = makeSession sessionize.Speakers sessionize.Categories
 
             let remoteSessions = sessionize.Sessions
                                 |> Array.map makeSession'
@@ -38,7 +38,7 @@ module SessionizeFunctions =
             (addNewSessions log remoteSessions existingSessions sessionsSource) |> ignore
             (updateSessions log remoteSessions existingSessions sessionsSource) |> ignore
 
-            log.Info("Writing to queue")
+            log.LogInformation("Writing to queue")
 
             return ignore
         } |> Async.StartAsTask

@@ -8,7 +8,7 @@
                     "GET"
                 ]
             },
-            "backendUri": "%FunctionWebsiteName%/api/Get-Sessions?code=%FunctionApiKey%&year={year}"
+            "backendUri": "%FunctionWebsiteName%/api/v1/Get-Sessions?code=%FunctionApiKey%&year={year}"
         },
         "Lets Encrypt": {
             "matchCondition": {
@@ -36,7 +36,7 @@
                     "GET"
                 ]
             },
-            "backendUri": "%FunctionWebsiteName%/api/Get-Swagger?code=%FunctionApiKey%"
+            "backendUri": "%FunctionWebsiteName%/api/v1/Get-Swagger?code=%FunctionApiKey%"
         },
         "Get Session": {
             "matchCondition": {
@@ -45,7 +45,7 @@
                     "GET"
                 ]
             },
-            "backendUri": "%FunctionWebsiteName%/api/Get-Session?code=%FunctionApiKey%&id={id}"
+            "backendUri": "%FunctionWebsiteName%/api/v1/Get-Session?code=%FunctionApiKey%&id={id}"
         },
         "Vote": {
             "matchCondition": {
@@ -54,7 +54,7 @@
                     "POST"
                 ]
             },
-            "backendUri": "%FunctionWebsiteName%/api/Save-Vote?code=%FunctionApiKey%&year={year}"
+            "backendUri": "%FunctionWebsiteName%/api/v1/Save-Vote?code=%FunctionApiKey%&year={year}"
         }
     }
 }

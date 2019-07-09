@@ -65,7 +65,7 @@ module AgendaFunctions =
         OkObjectResult(agendaResponse) :> IActionResult
 
     [<FunctionName("Get_agenda_for_year")>]
-    let getAgenda([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Get-Agenda/{year}")>] req: HttpRequest,
+    let getAgenda([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/v1/Get-Agenda/{year}")>] req: HttpRequest,
                     [<Table("Sessions")>]sessionsTable: CloudTable,
                     [<Table("Agenda")>]agendaTable: CloudTable,
                     year: string) =

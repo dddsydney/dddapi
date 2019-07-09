@@ -1,19 +1,18 @@
 namespace DDDApi.Functions
 open DDDApi
 
-open System.Net.Http
 open Microsoft.WindowsAzure.Storage.Table
 open Newtonsoft.Json
 open Microsoft.AspNetCore.Mvc
 open Microsoft.AspNetCore.Http
 open Microsoft.Azure.WebJobs
 open Microsoft.Azure.WebJobs.Extensions.Http
-open Microsoft.Azure.WebJobs.Host
 open System
 open System.IO
 open DDDApi.Voting
 open FSharp.Azure.Storage.Table
 open DDDApi.azureTableUtils
+open Microsoft.Extensions.Logging
 
 type UserVote = { TicketNumber: string
                   SessionIds: array<string> }
@@ -24,14 +23,14 @@ module VotingFunctions =
         ip.ToString()
 
     [<FunctionName("Vote_for_session")>]
-    let saveVote([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Save-Vote/{year}")>] req: HttpRequest,
+    let saveVote([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "api/v1/Save-Vote/{year}")>] req: HttpRequest,
                  [<Table("Sessions")>]sessionsSource: CloudTable,
                  [<Table("Votes")>]votesTable: CloudTable,
                  year: string,
-                 log: TraceWriter) =
+                 log: ILogger) =
         async {
             let now = DateTimeOffset.Now
-            log.Info(sprintf "Looking for votes in %s" year)
+            log.LogInformation(sprintf "Looking for votes in %s" year)
 
             match validVotingPeriod now year with
             | true ->

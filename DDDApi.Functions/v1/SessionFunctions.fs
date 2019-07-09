@@ -13,7 +13,7 @@ open FSharp.Azure.Storage.Table
 
 module SessionFunctions =
     [<FunctionName("Get_sessions_for_a_year")>]
-    let getSessions([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/v1/Get-Sessions/{year}")>] req: HttpRequest,
+    let getSessions([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/Get-Sessions/{year}")>] req: HttpRequest,
                     [<Table("LegacySessions", Connection = "EventStorage")>]sessionsTable: CloudTable,
                     year: string) =
         let pk = sprintf "Session-%s" year
@@ -32,8 +32,8 @@ module SessionFunctions =
         } |> Async.StartAsTask
 
     [<FunctionName("Get_session_by_id")>]
-    let getSession([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/v1/Get-Session/{id}")>] req: HttpRequest,
-                    [<Table("Sessions")>]sessionsTable: CloudTable,
+    let getSession([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/Get-Session/{id}")>] req: HttpRequest,
+                    [<Table("LegacySessions")>]sessionsTable: CloudTable,
                     id: string) =
         async {
             let! sessions = Query.all<Session>

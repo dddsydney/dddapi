@@ -16,6 +16,28 @@ type ResponseSession =
       [<field: DataMember(Name="TrackType")>]TrackType: string
       [<field: DataMember(Name="SessionLength")>]SessionLength: string }
 
+type ResponsePresenter =
+    { FirstName: string
+      LastName: string
+      Url: string
+      Bio: string
+      Twitter: string
+      Tagline: string
+      Photo: string
+      PreferredPronoun: string
+      LinkedIn: string }
+
+[<DataContract>]
+type ResponseSessionV2 =
+    { [<field: DataMember(Name="SessionId")>]Id: string
+      [<field: DataMember(Name="SessionTitle")>]SessionTitle: string
+      [<field: DataMember(Name="SessionAbstract")>]SessionAbstract: string
+      [<field: DataMember(Name="RecommendedAudience")>]RecommendedAudience: string
+      [<field: DataMember(Name="Year")>]Year: string
+      [<field: DataMember(Name="TrackType")>]TrackType: string
+      [<field: DataMember(Name="SessionLength")>]SessionLength: string
+      [<field: DataMember(Name="Presenters")>]Presenters: ResponsePresenter[] }
+
 module ResponseSessionMapper =
   let sessionToResult (session: Session) = { Id = session.RowKey;
                                              SessionTitle = session.SessionTitle;
@@ -28,3 +50,24 @@ module ResponseSessionMapper =
                                              Year = session.PartitionKey.Replace("Session-", "");
                                              SessionLength = session.SessionLength;
                                              TrackType = session.TrackType }
+
+  let sessionV2ToResult (session: SessionV2) (presenters: seq<Presenter>) =
+      { Id = session.SessionizeId
+        SessionTitle = session.Title
+        SessionAbstract = session.Abstract
+        RecommendedAudience = session.RecommendedAudience
+        Year = session.EventYear
+        SessionLength = session.SessionLength
+        TrackType = session.Track
+        Presenters = presenters
+                     |> Seq.map(fun p ->
+                        { FirstName = p.FirstName
+                          LastName = p.LastName
+                          Url = p.Url
+                          Bio = p.Bio
+                          Twitter = p.Twitter
+                          Tagline = p.Tagline
+                          Photo = p.Photo
+                          PreferredPronoun = p.PreferredPronoun
+                          LinkedIn = p.LinkedIn })
+                     |> Seq.toArray}

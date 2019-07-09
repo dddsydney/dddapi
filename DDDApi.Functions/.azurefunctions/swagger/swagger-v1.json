@@ -1,0 +1,273 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "api.dddsydney.com.au",
+    "version": "1.0.0"
+  },
+  "host": "api.dddsydney.com.au",
+  "basePath": "/v1",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/sessions/{year}": {
+      "get": {
+        "operationId": "/sessions/{year}/get",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "consumes": [],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The year that you want to get sessions for"
+          }
+        ],
+        "description": "Gets a list of sessions for a particular year that DDD Sydney ran",
+        "responses": {
+          "200": {
+            "description": "Great success!",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Session"
+              }
+            }
+          },
+          "404": {
+            "description": "No sessions found",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/session/{id}": {
+      "get": {
+        "operationId": "/session/{id}/get",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "consumes": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the session you want"
+          }
+        ],
+        "description": "Gets a session details from a DDD Sydney event",
+        "responses": {
+          "200": {
+            "description": "Great success!",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/Session"
+              }
+            }
+          },
+          "404": {
+            "description": "No session found",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/track-types/{year}": {
+      "get": {
+        "operationId": "/track-types/{year}/get",
+        "description": "Gets the track types that were supported in that year",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [{
+          "name": "year",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "The year that you want to get track types for"
+        }],
+        "responses": {
+          "200": {
+            "description": "Great success!",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TrackType"
+              }
+            }
+          },
+          "404": {
+            "description": "No track types found for that year",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vote/{year}": {
+      "post": {
+        "operationId": "/vote/{year}/post",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [{
+          "name": "year",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "description": "The year that you want to get track types for"
+        }, {
+          "name": "sessionIds",
+          "in": "body",
+          "description": "The vote request",
+          "schema": {
+            "$ref": "#/definitions/Votes"
+          }
+        }],
+        "responses": {
+          "201": {
+            "description": "Votes recorded"
+          },
+          "400": {
+            "description": "The votes submitted are invalid",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          },
+          "404": {
+            "description": "Voting not found for the specified year",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/GenericError"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Session": {
+      "description": "A session for DDD Sydney",
+      "type": "object",
+      "properties": {
+        "SessionId": {
+          "type": "string",
+          "description": "The unique ID of the session"
+        },
+        "SessionTitle": {
+          "type": "string",
+          "description": "The title of the session"
+        },
+        "SessionAbstract": {
+          "type": "string",
+          "description": "The description of the session"
+        },
+        "PresenterName": {
+          "type": "string",
+          "description": "The name of the presenter(s) for the session"
+        },
+        "PresenterBio": {
+          "type": "string",
+          "description": "The biography of the presenter"
+        },
+        "PresenterWebsite": {
+          "type": "string",
+          "description": "Website of the presenter"
+        },
+        "PresenterTwitterAlias": {
+          "type": "string",
+          "description": "Twitter handle for the presenter"
+        },
+        "RecommendedAudience": {
+          "type": "string",
+          "description": "A description of who this session is targeted for/the level of the talk"
+        },
+        "Year": {
+          "type": "string",
+          "description": "The year that the session is from"
+        },
+        "SessionLength": {
+          "type": "string",
+          "description": "The length of the session (45 minutes or 20 minutes)"
+        },
+        "TrackType": {
+          "type": "string",
+          "description": "What track does the session fall into"
+        }
+      }
+    },
+    "TrackType": {
+      "description": "The type of track that happened at DDD Sydney",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The id for the track type"
+        },
+        "name": {
+          "type": "string",
+          "description": "The friendly name of the track type"
+        }
+      }
+    },
+    "GenericError": {
+      "description": "No sessions were found",
+      "properties": {
+        "Message": {
+          "type": "string",
+          "description": "Telling you what you did wrong"
+        }
+      }
+    },
+    "Votes": {
+      "description": "A vote placed by a user",
+      "properties": {
+        "ticketNumber": {
+          "type": "string",
+          "description": "Optionally provided ticket number of the voter"
+        },
+        "sessionIds": {
+          "type": "array",
+          "description": "The ID's of the sessions being voted for",
+          "items":{
+            "type": "string",
+            "maxItems": 5,
+            "minItems": 1,
+            "items": [{
+              "type": "string"
+            }]
+          }
+        }
+      }
+    }
+  }
+}

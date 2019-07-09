@@ -10,7 +10,7 @@ module SessionizeApi =
     type Sessionize = JsonProvider<"../sessionize-sample.json">
     
     let downloadSessionize apiKey =
-        Sessionize.AsyncLoad (sprintf "https://sessionize.com/api/v2/%s/view/all" apiKey)
+        Sessionize.AsyncLoad (sprintf "https://sessionize.com/v2/%s/view/all" apiKey)
 
     let findSpeakers (session : SessionV2) (allSpeakers: array<Sessionize.Speaker>) =
         allSpeakers

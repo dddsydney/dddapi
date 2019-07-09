@@ -23,7 +23,7 @@ module VotingFunctions =
         ip.ToString()
 
     [<FunctionName("Vote_for_session")>]
-    let saveVote([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "api/v1/Save-Vote/{year}")>] req: HttpRequest,
+    let saveVote([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/Save-Vote/{year}")>] req: HttpRequest,
                  [<Table("LegacySessions", Connection = "EventStorage")>]sessionsSource: CloudTable,
                  [<Table("LegacyVotes", Connection = "EventStorage")>]votesTable: CloudTable,
                  year: string,

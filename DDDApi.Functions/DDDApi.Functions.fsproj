@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
@@ -7,6 +7,10 @@
     <ProjectReference Include="..\DDDApi\DDDApi.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="v1\DocumentationFunctions.fs" />
+    <Compile Include="v1\AgendaFunctions.fs" />
+    <Compile Include="v1\VotingFunctions.fs" />
+    <Compile Include="v1\SessionFunctions.fs" />
     <Content Include="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -16,22 +20,20 @@
     <!-- <Content Include="proxies.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content> -->
-    <Content Include=".azurefunctions/swagger/swagger.json">
+    <Content Include=".azurefunctions\swagger\swagger-v1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Compile Include="azureTableUtils.fs" />
-    <Compile Include="SessionFunctions.fs" />
     <Compile Include="SessionizeFunctions.fs" />
-    <Compile Include="VotingFunctions.fs" />
-    <Compile Include="DocumentationFunctions.fs" />
-    <Compile Include="AgendaFunctions.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.Azure.Storage" Version="3.0.0" />
+    <PackageReference Include="FSharp.Azure.Storage" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="1.7.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.6" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.28" />
     <PackageReference Include="TaskBuilder.fs" Version="2.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="v2\" />
   </ItemGroup>
 </Project>

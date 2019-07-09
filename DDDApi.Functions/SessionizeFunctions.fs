@@ -4,41 +4,56 @@ open Microsoft.Extensions.Configuration
 open Microsoft.Azure.WebJobs
 open Microsoft.WindowsAzure.Storage.Table
 open DDDApi
+open DDDApi.azureTableUtils
 open DDDApi.SessionizeApi
 open FSharp.Azure.Storage.Table
 open Microsoft.Extensions.Logging
 
 module SessionizeFunctions =
     [<FunctionName("Download_Sessionzie_data")>]
-    let downloadSessionize([<TimerTrigger("0 5 * * * *")>]timer: TimerInfo,
-                           [<Table("Session")>]sessionsSource: CloudTable,
-                           context: ExecutionContext,
-                           log: ILogger) =
+    let downloadSessionize ([<TimerTrigger("0 0 * * * *")>] timer: TimerInfo)
+                           ([<Table("Session", Connection = "EventStorage")>] sessionsSource: CloudTable)
+                           ([<Table("Presenter", Connection = "EventStorage")>] speakersSource: CloudTable)
+                           (context: ExecutionContext)
+                           (log: ILogger) =
+
         let config = (ConfigurationBuilder())
                         .SetBasePath(context.FunctionAppDirectory)
                         .AddJsonFile("local.settings.json", true, true)
                         .AddEnvironmentVariables()
                         .Build()
 
-        let apiKey = config.["Sessionize.ApiKey"]
+        let apiKey = config.["Sessionize:ApiKey"]
         async {
             let! sessionize = downloadSessionize apiKey
 
-            let makeSession' = makeSession sessionize.Speakers sessionize.Categories
+            let makeSession' = makeSession sessionize.Categories sessionize.Questions
 
             let remoteSessions = sessionize.Sessions
-                                |> Array.map makeSession'
+                                             |> Array.map makeSession'
 
-            let existingSessions = Query.all<Session>
-                                   |> Query.where <@ fun _ s -> s.PartitionKey = "Session-2018" @>
-                                   |> fromTable sessionsSource.ServiceClient sessionsSource.Name
+            let existingSessions = Query.all<SessionV2>
+                                   |> Query.where <@ fun s _ -> s.EventYear = "2019" @>
+                                   |> fromTableToClient sessionsSource
                                    |> Seq.map(fun (s, _) -> s)
 
+            let _ = addNewSessions log remoteSessions existingSessions sessionsSource
+            let _ = updateSessions log remoteSessions existingSessions sessionsSource
 
-            (addNewSessions log remoteSessions existingSessions sessionsSource) |> ignore
-            (updateSessions log remoteSessions existingSessions sessionsSource) |> ignore
+            let existingSpeakers = Query.all<Presenter>
+                                   |> Query.where<@ fun s _ -> s.EventYear = "2019" @>
+                                   |> fromTableToClient speakersSource
+                                   |> Seq.map(fun (s, _) -> s)
+
+            let remoteSpeakers = remoteSessions
+                                 |> Array.map (makeSpeakers sessionize.Speakers sessionize.Categories sessionize.Questions)
+                                 |> Array.concat
+
+            let _ = addNewSpeakers log remoteSpeakers existingSpeakers speakersSource
+            let _ = updateSpeakers log remoteSpeakers existingSpeakers speakersSource
 
             log.LogInformation("Writing to queue")
 
-            return ignore
-        } |> Async.StartAsTask
+            return ignore()
+        }
+        |> Async.RunSynchronously

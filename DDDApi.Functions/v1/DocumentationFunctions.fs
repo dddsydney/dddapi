@@ -12,7 +12,7 @@ module DocumentationFunctions =
     let getSwagger([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "api/v1/Get-Swagger")>] req: HttpRequest,
                    context: ExecutionContext) =
 
-        let path = Path.Combine(context.FunctionDirectory, ".azurefunctions", "swagger", "swagger.json")
+        let path = Path.Combine(context.FunctionDirectory, ".azurefunctions", "swagger", "swagger-v1.json")
 
         match File.Exists path with
         | true ->

@@ -66,8 +66,8 @@ module AgendaFunctions =
 
     [<FunctionName("Get_agenda_for_year")>]
     let getAgenda([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/v1/Get-Agenda/{year}")>] req: HttpRequest,
-                    [<Table("Sessions")>]sessionsTable: CloudTable,
-                    [<Table("Agenda")>]agendaTable: CloudTable,
+                    [<Table("LegacySessions", Connection = "EventStorage")>]sessionsTable: CloudTable,
+                    [<Table("LegacyAgenda", Connection = "EventStorage")>]agendaTable: CloudTable,
                     year: string) =
         async {
             let! agendaItems = Query.all<Agenda>

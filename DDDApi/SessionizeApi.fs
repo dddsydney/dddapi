@@ -2,8 +2,9 @@ namespace DDDApi
 
 open FSharp.Data
 open System
-open Microsoft.WindowsAzure.Storage.Table
 open Microsoft.Extensions.Logging
+open azureTableUtils
+open FSharp.Azure.Storage.Table
 
 module SessionizeApi =
     type Sessionize = JsonProvider<"../sessionize-sample.json">
@@ -11,78 +12,101 @@ module SessionizeApi =
     let downloadSessionize apiKey =
         Sessionize.AsyncLoad (sprintf "https://sessionize.com/api/v2/%s/view/all" apiKey)
 
-    let findSpeakers (speakers: array<Guid>) (allSpeakers: array<Sessionize.Speaker>) =
+    let findSpeakers (session : SessionV2) (allSpeakers: array<Sessionize.Speaker>) =
         allSpeakers
-        |> Array.filter (fun x -> speakers |> Array.exists (fun s -> x.Id = s))
+        |> Array.filter (fun speaker -> speaker.Sessions
+                                        |> Array.exists (fun sessionId -> session.SessionizeId = sessionId.ToString()))
 
-    let getSpeakerLink (title: string) (speaker: Sessionize.Speaker) =
+    let getSpeakerLink title (speaker: Sessionize.Speaker) =
         speaker.Links |> Array.findOrNone (fun link -> link.Title = title)
 
-    let getCategoryItem (title: string) (items: array<int>) (categories: array<Sessionize.Category>) =
+    let getCategoryItem (categories: array<Sessionize.Category>) items title=
         match categories |> Array.findOrNone (fun c -> c.Title = title) with
         | Some category -> category.Items |> Array.findOrNone (fun ci -> items |> Array.exists(fun i -> i = ci.Id))
         | None -> None
 
-    let makeSession (allSpeakers: array<Sessionize.Speaker>) (categories: array<Sessionize.Category>) (remoteSession: Sessionize.Session) =
-        let speakers = findSpeakers (remoteSession.Speakers) allSpeakers
-        let speakerNames = speakers
-                           |> Array.map (fun s -> s.FullName)
-                           |> Array.reduce (fun x y -> x + ", " + y)
+    let getQuestionAnswer  (questions: array<Sessionize.Question>) (items: array<Sessionize.QuestionAnswer>) question =
+        match questions |> Array.findOrNone (fun q -> q.Question = question) with
+        | Some q -> items |> Array.findOrNone (fun i -> i.QuestionId = q.Id)
+        | None -> None
 
-        let firstSpeaker = Array.get speakers 0
+    let makeSpeakers allSpeakers categories questions session =
+        let remoteSpeakers = findSpeakers session allSpeakers
+        
+        let gci = getCategoryItem categories
+        let gqa = getQuestionAnswer questions
 
-        let session = Session()
-        session.PartitionKey <- "Session-2018"
-        session.RowKey <- Guid.NewGuid().ToString()
-        session.RemoteId <- remoteSession.Id
-        session.SessionTitle <- remoteSession.Title
-        session.SessionAbstract <- remoteSession.Description
+        let speakers = remoteSpeakers
+                       |> Array.map (fun speaker ->
+                          { EventYear = "2019"
+                            TalkId = session.SessionizeId
+                            Id = speaker.Id.ToString()
+                            FirstName = speaker.FirstName
+                            LastName = speaker.LastName
+                            FullName = speaker.FullName
+                            Bio = speaker.Bio
+                            Email = ""
+                            Url = match getSpeakerLink "Blog" speaker with
+                                  | Some item -> item.Url
+                                  | None -> ""
+                            Twitter = match getSpeakerLink "Twitter" speaker with
+                                      | Some item -> item.Url
+                                      | None -> ""
+                            LinkedIn = match getSpeakerLink "LinkedIn" speaker with
+                                       | Some item -> item.Url
+                                       | None -> ""
+                            Tagline = speaker.TagLine
+                            Photo = speaker.ProfilePicture
+                            MobileNumber = match gqa speaker.QuestionAnswers "Mobile Number" with
+                                           | Some a -> a.AnswerValue
+                                           | None -> ""
+                            PreferredPronoun = match gci speaker.CategoryItems "Preferred pronoun" with
+                                               | Some item -> item.Name
+                                               | None -> ""
+                            PreferredPronounOther = ""
+                            Level = match gci speaker.CategoryItems "How would you identify your job role" with
+                                    | Some item -> item.Name
+                                    | None -> ""
+                            Experience = match gci speaker.CategoryItems "How much speaking experience do you have?" with
+                                         | Some item -> item.Name
+                                         | None -> ""
+                            UnderRep = match gqa speaker.QuestionAnswers "Are you a member of any underrepresented groups?" with
+                                       | Some a -> a.AnswerValue
+                                       | None -> "" })
 
-        (match getCategoryItem "Level" (remoteSession.CategoryItems) categories with
-        | Some item ->
-            session.RecommendedAudience <- item.Name
-            ignore
-        | None -> ignore) |> ignore
+        speakers
 
-        (match getCategoryItem "Track Type" (remoteSession.CategoryItems) categories with
-        | Some item ->
-            session.TrackType <- item.Name
-            ignore
-        | None -> ignore) |> ignore
+    let makeSession categories questions (remoteSession: Sessionize.Session) =
+        let gci = getCategoryItem categories
+        let gqa = getQuestionAnswer questions
 
-        (match getCategoryItem "Talk length" (remoteSession.CategoryItems) categories with
-        | Some item ->
-            session.SessionLength <- item.Name
-            ignore
-        | None -> ignore) |> ignore
-
-        session.PresenterName <- speakerNames
-        session.PresenterEmail <- ""
-
-        (match getSpeakerLink "Twitter" firstSpeaker with
-        | Some link ->
-            session.PresenterTwitterAlias <- link.Url
-            ignore
-        | None -> ignore) |> ignore
-
-        (match getSpeakerLink "Blog" firstSpeaker with
-        | Some link ->
-            session.PresenterWebsite <- link.Url
-            ignore
-        | None -> ignore) |> ignore
-
-        session.PresenterBio <- firstSpeaker.Bio
-        session.SubmittedDateUtc <- DateTime.Now
-        session.Timestamp <- DateTimeOffset.Now
-        session.Status <- 1
+        let session =
+            { EventYear = "2019"
+              SessionizeId = remoteSession.Id.ToString()
+              Title = remoteSession.Title
+              Abstract = remoteSession.Description
+              RecommendedAudience = match gci remoteSession.CategoryItems "Level" with
+                                    | Some item -> item.Name
+                                    | None -> ""
+              SubmittedDateUtc = DateTime.UtcNow
+              Status = "Unapproved"
+              SessionLength = match gci remoteSession.CategoryItems "Talk length" with
+                              | Some item -> item.Name
+                              | None -> ""
+              Track = match gci remoteSession.CategoryItems "Track Type" with
+                      | Some item -> item.Name
+                      | None -> ""
+              Topic = match gqa remoteSession.QuestionAnswers "Topics" with
+                      | Some a -> a.AnswerValue
+                      | None -> "" }
 
         session
 
-    let addNewSessions (log: ILogger) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
+    let addNewSessions (log: ILogger) (remoteSessions: array<SessionV2>) (existingSessions: seq<SessionV2>) table =
         let newSessions = remoteSessions
                             |> Array.filter (fun rs ->
                                 let m = existingSessions
-                                        |> Seq.filter (fun es -> es.RemoteId = rs.RemoteId)
+                                        |> Seq.filter (fun es -> es.SessionizeId = rs.SessionizeId)
                                 match Seq.length m with
                                 | 0 -> true
                                 | _ -> false
@@ -92,14 +116,16 @@ module SessionizeApi =
             sprintf "Found %d new sessions" (Array.length newSessions)
         )
 
-        // newSessions |> Array.iter table.CreateAsync
         newSessions
+        |> Seq.map Insert
+        |> autobatch
+        |> List.map (inTableToClientAsBatch table)
 
-    let updateSessions (log: ILogger) (remoteSessions: array<Session>) (existingSessions: seq<Session>) (table: CloudTable) =
+    let updateSessions (log: ILogger) (remoteSessions: array<SessionV2>) (existingSessions: seq<SessionV2>) table =
         let updatableSessions = existingSessions
                                 |> Seq.filter (fun es ->
                                     let m = remoteSessions
-                                            |> Array.filter (fun rs -> rs.RemoteId = es.RemoteId)
+                                            |> Array.filter (fun rs -> rs.SessionizeId = es.SessionizeId)
                                     match Array.length m with
                                     | 0 -> false
                                     | _ -> true
@@ -108,21 +134,45 @@ module SessionizeApi =
             sprintf "Found %d updatable sessions" (Seq.length updatableSessions)
         )
 
-        updatableSessions |> Seq.iter (fun s -> 
-                            let remoteSession = remoteSessions |> Array.find (fun rs -> rs.RemoteId = s.RemoteId)
-                            s.SessionTitle <- remoteSession.SessionTitle
-                            s.SessionAbstract <- remoteSession.SessionAbstract
-                            s.RecommendedAudience <- remoteSession.RecommendedAudience
-                            s.PresenterName <- remoteSession.PresenterName
-                            s.PresenterTwitterAlias <- remoteSession.PresenterTwitterAlias
-                            s.PresenterWebsite <- remoteSession.PresenterWebsite
-                            s.PresenterBio <- remoteSession.PresenterBio
-                            s.Timestamp <- DateTimeOffset.Now
-
-                            let op = TableOperation.Replace(s)
-                            table.ExecuteAsync(op)
-                            |> Async.AwaitTask
-                            |> Async.RunSynchronously
-                            |> ignore
-                            )
         updatableSessions
+        |> Seq.map InsertOrMerge
+        |> autobatch
+        |> List.map (inTableToClientAsBatch table)
+
+    let addNewSpeakers (log: ILogger) (remoteSpeakers: array<Presenter>) (existingSpeakers: seq<Presenter>) table =
+        let newSpeakers = remoteSpeakers
+                            |> Array.filter (fun rs ->
+                                let m = existingSpeakers
+                                        |> Seq.filter (fun es -> es.TalkId = rs.TalkId && es.Id = rs.Id)
+                                match Seq.length m with
+                                | 0 -> true
+                                | _ -> false
+                                )
+
+        log.LogInformation(
+            sprintf "Found %d new speakers" (Array.length newSpeakers)
+        )
+
+        newSpeakers
+        |> Seq.map Insert
+        |> autobatch
+        |> List.map (inTableToClientAsBatch table)
+
+    let updateSpeakers (log: ILogger) (remoteSpeakers: array<Presenter>) (existingSpeakers: seq<Presenter>) table =
+        let updatableSpeakers = remoteSpeakers
+                                |> Array.filter (fun rs ->
+                                    let m = existingSpeakers
+                                            |> Seq.filter (fun es -> es.TalkId = rs.TalkId && es.Id = rs.Id)
+                                    match Seq.length m with
+                                    | 0 -> false
+                                    | _ -> true
+                                    )
+
+        log.LogInformation(
+            sprintf "Found %d updatable speakers" (Array.length updatableSpeakers)
+        )
+
+        updatableSpeakers
+        |> Seq.map InsertOrMerge
+        |> autobatch
+        |> List.map (inTableToClientAsBatch table)

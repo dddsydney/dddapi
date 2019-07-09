@@ -14,7 +14,7 @@ open FSharp.Azure.Storage.Table
 module SessionFunctions =
     [<FunctionName("Get_sessions_for_a_year")>]
     let getSessions([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "api/v1/Get-Sessions/{year}")>] req: HttpRequest,
-                    [<Table("Sessions")>]sessionsTable: CloudTable,
+                    [<Table("LegacySessions", Connection = "EventStorage")>]sessionsTable: CloudTable,
                     year: string) =
         let pk = sprintf "Session-%s" year
 

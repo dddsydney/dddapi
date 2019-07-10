@@ -78,22 +78,24 @@ let unapprovedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post"
          let! sessions = Query.all<SessionV2>
                          |> Query.where <@ fun s _ -> s.EventYear = year && s.Status = "Unapproved" @>
                          |> fromTableToClientAsync sessionsTable
-
+         
          let! presenters = Query.all<Presenter>
-                           |> Query.where<@ fun p _ -> p.EventYear = year @>
-                           |> fromTableToClientAsync presentersTable
-
+                         |> Query.where<@ fun p _ -> p.EventYear = year @>
+                         |> fromTableToClientAsync presentersTable
+         
          let resultSessions = sessions
-                              |> Seq.map(fun (s, _) ->
-                                  presenters
-                                  |> Seq.filter (fun (p, _) -> p.TalkId = s.SessionizeId)
-                                  |> Seq.map (fun (p, _) -> p)
-                                  |> sessionToApprovalMessage s)
+                             |> Seq.map(fun (s, _) ->
+                                 presenters
+                                 |> Seq.filter (fun (p, _) -> p.TalkId = s.SessionizeId)
+                                 |> Seq.map (fun (p, _) -> p)
+                                 |> sessionToApprovalMessage s)
 
          match Seq.length resultSessions with
          | 0 -> return OkObjectResult(":boom: There are no unapproved sessions") :> IActionResult
          | _ -> return OkObjectResult({ Text = "Here are the session"
-                                        Blocks = resultSessions |> Seq.take 50 }) :> IActionResult
+                                        Blocks = match Seq.length resultSessions with
+                                                 | len when len > 50 -> resultSessions |> Seq.take 50
+                                                 | _ -> resultSessions }) :> IActionResult
      } |> Async.StartAsTask
 
 type SlackMessageTextOnly =
@@ -141,7 +143,6 @@ let approveSessionCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", Ro
 
         let approvedSessions = sessions
                                |> Seq.map(fun (s, _) -> { s with Status = "Approved" })
-
 
         match Seq.length approvedSessions with
         | 0 -> return OkObjectResult(":boom: There are no unapproved sessions") :> IActionResult

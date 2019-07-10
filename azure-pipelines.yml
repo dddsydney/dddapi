@@ -1,0 +1,35 @@
+trigger:
+  branches:
+    include:
+    - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    arguments: '--configuration $(BuildConfiguration)'
+    publishWebProjects: false
+    zipAfterPublish: false
+  displayName: dotnet publish
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DDDApi.Functions/bin/$(BuildConfiguration)/netcoreapp2.1/publish'
+    includeRootFolder: false
+    archiveFile: '$(Build.ArtifactStagingDirectory)/DDDApi.Functions-$(Build.BuildId).zip'
+  displayName: Archive Functions
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  continueOnError: true
+  inputs:
+    artifactName: Apps

@@ -162,7 +162,7 @@ let getSessionCommand([<HttpTrigger(AuthorizationLevel.Function, "post", Route =
     async {
         let id = req.Form.["text"].[0]
         let! sessions = Query.all<SessionV2>
-                        |> Query.where <@ fun s _ -> s.Status = "Approved" && s.SessionizeId = id @>
+                        |> Query.where <@ fun s _ -> s.SessionizeId = id @>
                         |> fromTableToClientAsync sessionsTable
 
         let! presenters = Query.all<Presenter>

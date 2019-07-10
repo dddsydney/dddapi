@@ -23,7 +23,7 @@ module SessionizeFunctions =
                         .AddEnvironmentVariables()
                         .Build()
 
-        let apiKey = config.["Sessionize:ApiKey"]
+        let apiKey = config.["SessionizeApiKey"]
         async {
             let! sessionize = downloadSessionize apiKey
 
@@ -56,4 +56,4 @@ module SessionizeFunctions =
 
             return ignore()
         }
-        |> Async.RunSynchronously
+        |> Async.StartAsTask

@@ -10,7 +10,8 @@ module SessionizeApi =
     type Sessionize = JsonProvider<"../sessionize-sample.json">
     
     let downloadSessionize apiKey =
-        Sessionize.AsyncLoad (sprintf "https://sessionize.com/v2/%s/view/all" apiKey)
+        sprintf "https://sessionize.com/api/v2/%s/view/all" apiKey
+        |> Sessionize.AsyncLoad
 
     let findSpeakers (session : SessionV2) (allSpeakers: array<Sessionize.Speaker>) =
         allSpeakers
@@ -93,7 +94,7 @@ module SessionizeApi =
               SessionLength = match gci remoteSession.CategoryItems "Talk length" with
                               | Some item -> item.Name
                               | None -> ""
-              Track = match gci remoteSession.CategoryItems "Track Type" with
+              Track = match gci remoteSession.CategoryItems "Track" with
                       | Some item -> item.Name
                       | None -> ""
               Topic = match gqa remoteSession.QuestionAnswers "Topics" with

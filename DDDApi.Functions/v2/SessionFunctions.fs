@@ -11,7 +11,7 @@ open DDDApi.ResponseSessionMapper
 open Microsoft.AspNetCore.Mvc
 
 [<FunctionName("Get_sessions_for_a_year_v2")>]
-let getSessionsV2([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v2/Get-Sessions/{year}")>] req: HttpRequest,
+let getSessionsV2([<HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "v2/Get-Sessions/{year}")>] req: HttpRequest,
                   [<Table("Session", Connection = "EventStorage")>] sessionsTable: CloudTable,
                   [<Table("Presenter", Connection = "EventStorage")>] presentersTable: CloudTable,
                   year: string) =

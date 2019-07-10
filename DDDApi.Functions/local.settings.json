@@ -3,10 +3,8 @@
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "EventStorage": "UseDevelopmentStorage=true",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "SessionizeApiKey": ""
     },
-    "ConnectionStrings": {},
-    "Sessionize": {
-        "ApiKey": ""
-    }
+    "ConnectionStrings": {}
 }

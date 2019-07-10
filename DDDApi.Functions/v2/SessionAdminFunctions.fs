@@ -10,7 +10,7 @@ open DDDApi.ResponseSessionMapper
 open Microsoft.AspNetCore.Mvc
 
 [<FunctionName("Get_unapproved_sessions")>]
-let getUnapprovedSessions ([<HttpTrigger(AuthorizationLevel.Function, "get", Route = "v2/Get-UnapprovedSession/{year}")>] req: HttpRequest)
+let getUnapprovedSessions ([<HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "v2/Get-UnapprovedSession/{year}")>] req: HttpRequest)
                           ([<Table("Session", Connection = "EventStorage")>] sessionsTable)
                           ([<Table("Presenter", Connection = "EventStorage")>] presentersTable)
                           (year: string) =

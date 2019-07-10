@@ -53,7 +53,7 @@ let sessionToViewMessage s presenters =
     let presenterNames = presenters
                          |> Seq.map (fun p -> p.FullName)
                          |> String.concat ", "
-    sprintf "_%s_ by *%s*\r\n" s.Title presenterNames
+    sprintf "(%s) _%s_ by *%s*" s.SessionizeId s.Title presenterNames
 
 let sessionToDetailMessage s presenters =
     let presenterNames = presenters
@@ -141,7 +141,9 @@ let approvedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", 
          | 0 -> return OkObjectResult(":boom: There are no approved sessions") :> IActionResult
          | _ -> return OkObjectResult({ Text = "Here are the session"
                                         Blocks = [{ BlockType = "section"
-                                                    TextBlock = { Type = "mrkdwn"; Text = resultSessions |> String.concat "" } }] }) :> IActionResult
+                                                    TextBlock =
+                                                     { Type = "mrkdwn"
+                                                       Text = resultSessions |> Seq.take 50 |> String.concat "\r\n" } }] }) :> IActionResult
      } |> Async.StartAsTask
 
 [<FunctionName("Slack_Approve_Session")>]

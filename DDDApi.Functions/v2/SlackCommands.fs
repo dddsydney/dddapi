@@ -43,7 +43,7 @@ let sessionToApprovalMessage s presenters =
     { BlockType = "section"
       TextBlock =
        { Type = "mrkdwn"
-         Text = sprintf "_%s_ by *%s*" s.Title presenterNames }
+         Text = sprintf "(%s) _%s_ by *%s*" s.SessionizeId s.Title presenterNames }
       AccessoryBlock =
        { Type = "button"
          Text = { Type = "plain_text"; Text = ":heavy_check_mark: Approve"; Emoji = true }

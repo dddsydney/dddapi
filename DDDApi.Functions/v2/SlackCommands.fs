@@ -53,14 +53,7 @@ let sessionToViewMessage s presenters =
     let presenterNames = presenters
                          |> Seq.map (fun p -> p.FullName)
                          |> String.concat ", "
-    { BlockType = "section"
-      TextBlock =
-       { Type = "mrkdwn"
-         Text = sprintf "_%s_ by *%s*" s.Title presenterNames }
-      AccessoryBlock =
-       { Type = "button"
-         Text = { Type = "plain_text"; Text = sprintf "View %s" s.SessionizeId; Emoji = true }
-         Value = s.SessionizeId } }
+    sprintf "_%s_ by *%s*\r\n" s.Title presenterNames
 
 let sessionToDetailMessage s presenters =
     let presenterNames = presenters
@@ -116,6 +109,10 @@ let unapprovedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post"
                                         Blocks = resultSessions |> Seq.take 50 }) :> IActionResult
      } |> Async.StartAsTask
 
+type SlackMessageTextOnly =
+    { Text: string
+      Blocks: seq<SlackBlockTextOnly> }
+
 [<FunctionName("Slack_Approved_Sessions")>]
 let approvedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", Route = "v2/Slack-ApprovedSession")>] req: HttpRequest)
                               ([<Table("Session", Connection = "EventStorage")>] sessionsTable)
@@ -143,7 +140,8 @@ let approvedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", 
          match Seq.length resultSessions with
          | 0 -> return OkObjectResult(":boom: There are no approved sessions") :> IActionResult
          | _ -> return OkObjectResult({ Text = "Here are the session"
-                                        Blocks = resultSessions |> Seq.take 50 }) :> IActionResult
+                                        Blocks = [{ BlockType = "section"
+                                                    TextBlock = { Type = "mrkdwn"; Text = resultSessions |> String.concat "" } }] }) :> IActionResult
      } |> Async.StartAsTask
 
 [<FunctionName("Slack_Approve_Session")>]
@@ -174,10 +172,6 @@ let approveSessionCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", Ro
                      |> Async.Parallel
             return OkObjectResult(":tada: Sessions approved") :> IActionResult
     } |> Async.StartAsTask
-
-type SlackMessageTextOnly =
-    { Text: string
-      Blocks: seq<SlackBlockTextOnly> }
 
 [<FunctionName("Slack_Get_Session")>]
 let getSessionCommand([<HttpTrigger(AuthorizationLevel.Function, "post", Route = "v2/Slack-Session")>] req: HttpRequest,

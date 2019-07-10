@@ -62,31 +62,18 @@ let sessionToDetailMessage s presenters =
     { BlockType = "section"
       TextBlock =
        { Type = "mrkdwn"
-         Text = sprintf "_%s_ by *%s*\r\n%s\r\n>Topic: %s, Track: %s, Length: %s" s.Title presenterNames s.Abstract s.Topic s.Track s.SessionLength } }
+         Text = sprintf "_%s_ by *%s*\r\n%s\r\n>Topic: %s\r\nTrack: %s\r\nLength: %s" s.Title presenterNames s.Abstract s.Topic s.Track s.SessionLength } }
 
 type SlackMessageWithAccessory =
     { Text: string
       Blocks: seq<SlackBlockWithAccessory> }
-
-let parseBody (stream: Stream) =
-    async {
-        let! body = (new StreamReader(stream)).ReadToEndAsync() |> Async.AwaitTask
-
-        return body.Split('&')
-               |> Array.map(fun s -> s.Split('='))
-               |> Array.map(fun arr -> (arr.[0], arr.[1]))
-               |> Array.toSeq
-               |> dict
-    }
 
 [<FunctionName("Slack_Unapproved_Sessions")>]
 let unapprovedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", Route = "v2/Slack-UnapprovedSession")>] req: HttpRequest)
                               ([<Table("Session", Connection = "EventStorage")>] sessionsTable)
                               ([<Table("Presenter", Connection = "EventStorage")>] presentersTable) =
      async {
-         let! form = parseBody req.Body
-
-         let year = form.["text"]
+         let year = req.Form.["text"].[0]
 
          let! sessions = Query.all<SessionV2>
                          |> Query.where <@ fun s _ -> s.EventYear = year && s.Status = "Unapproved" @>
@@ -118,9 +105,7 @@ let approvedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", 
                               ([<Table("Session", Connection = "EventStorage")>] sessionsTable)
                               ([<Table("Presenter", Connection = "EventStorage")>] presentersTable) =
      async {
-         let! form = parseBody req.Body
-
-         let year = form.["text"]
+         let year = req.Form.["text"].[0]
 
          let! sessions = Query.all<SessionV2>
                          |> Query.where <@ fun s _ -> s.EventYear = year && s.Status = "Approved" @>
@@ -146,9 +131,7 @@ let approvedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", 
 let approveSessionCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", Route = "v2/Slack-ApproveSession")>] req: HttpRequest)
                           ([<Table("Session", Connection = "EventStorage")>] sessionsTable) =
     async {
-        let! form = parseBody req.Body
-
-        let id = form.["text"]
+        let id = req.Form.["text"].[0]
 
         let! sessions = Query.all<SessionV2>
                         |> match id with
@@ -176,9 +159,7 @@ let getSessionCommand([<HttpTrigger(AuthorizationLevel.Function, "post", Route =
                       [<Table("Session", Connection = "EventStorage")>] sessionsTable,
                       [<Table("Presenter", Connection = "EventStorage")>] presentersTable) =
     async {
-        let! form = parseBody req.Body
-        
-        let id = form.["text"]
+        let id = req.Form.["text"].[0]
         let! sessions = Query.all<SessionV2>
                         |> Query.where <@ fun s _ -> s.Status = "Approved" && s.SessionizeId = id @>
                         |> fromTableToClientAsync sessionsTable

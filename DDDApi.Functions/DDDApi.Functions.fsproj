@@ -10,6 +10,7 @@
     <Compile Include="v1\DocumentationFunctions.fs" />
     <Compile Include="v1\AgendaFunctions.fs" />
     <Compile Include="v1\SessionFunctions.fs" />
+    <Compile Include="v2\SlackVoteCommands.fs" />
     <Compile Include="v2\VotingFunctions.fs" />
     <Compile Include="v2\SessionAdminFunctions.fs" />
     <Compile Include="v2\SessionFunctions.fs" />

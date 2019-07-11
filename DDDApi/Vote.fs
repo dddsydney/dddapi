@@ -7,7 +7,7 @@ type Vote =
     { [<PartitionKey>]Year: string
       [<RowKey>]VoteId: string
       IpAddress: string
-      SessionId: Guid
+      SessionId: string
       SubmittedDateUTC: DateTimeOffset
       TicketNumber: string }
 

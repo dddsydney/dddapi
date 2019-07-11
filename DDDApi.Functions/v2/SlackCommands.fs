@@ -4,12 +4,9 @@ open Microsoft.Azure.WebJobs
 open Microsoft.Azure.WebJobs.Extensions.Http
 open FSharp.Azure.Storage.Table
 open DDDApi
-open DDDApi.azureTableUtils
 open System.Runtime.Serialization
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
-open System.IO
-open Microsoft.Extensions.Logging
 
 type SlackAccessoryTextBlock =
      { Type: string
@@ -78,7 +75,7 @@ let unapprovedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post"
          let! sessions = Query.all<SessionV2>
                          |> Query.where <@ fun s _ -> s.EventYear = year && s.Status = "Unapproved" @>
                          |> fromTableToClientAsync sessionsTable
-         
+
          let! presenters = Query.all<Presenter>
                          |> Query.where<@ fun p _ -> p.EventYear = year @>
                          |> fromTableToClientAsync presentersTable

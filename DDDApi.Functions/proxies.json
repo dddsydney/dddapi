@@ -1,13 +1,7 @@
 {
     "$schema": "http://json.schemastore.org/proxies",
     "proxies": {
-        "Lets Encrypt": {
-            "matchCondition": {
-                "route": "/.well-known/acme-challenge/{*rest}"
-            },
-            "backendUri": "%FunctionWebsiteName%/api/letsencrypt/{rest}"
-        },
-
+        
         "Get Sessions v1": {
             "matchCondition": {
                 "route": "/v1/sessions/{year}",

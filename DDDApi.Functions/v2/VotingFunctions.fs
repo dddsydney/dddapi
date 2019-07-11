@@ -22,7 +22,7 @@ let getIpAddress (req: HttpRequest) =
     ip.ToString()
 
 [<FunctionName("Vote_for_session")>]
-let saveVote([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v2/Save-Vote/{year}")>] req: HttpRequest,
+let saveVote([<HttpTrigger(AuthorizationLevel.Function, "post", Route = "v2/Save-Vote/{year}")>] req: HttpRequest,
              [<Table("Session", Connection = "EventStorage")>]sessionsSource,
              [<Table("Vote", Connection = "EventStorage")>]votesTable,
              year: string,

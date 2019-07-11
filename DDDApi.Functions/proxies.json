@@ -1,60 +1,76 @@
 {
     "$schema": "http://json.schemastore.org/proxies",
     "proxies": {
-        "Get Sessions": {
-            "matchCondition": {
-                "route": "/v1/sessions/{year}",
-                "methods": [
-                    "GET"
-                ]
-            },
-            "backendUri": "%FunctionWebsiteName%/api/v1/Get-Sessions?code=%FunctionApiKey%&year={year}"
-        },
         "Lets Encrypt": {
             "matchCondition": {
                 "route": "/.well-known/acme-challenge/{*rest}"
             },
             "backendUri": "%FunctionWebsiteName%/api/letsencrypt/{rest}"
         },
-        "Search Sessions": {
+
+        "Get Sessions v1": {
             "matchCondition": {
-                "route": "/v1/sessions/search/{term}",
+                "route": "/v1/sessions/{year}",
                 "methods": [
-                    "GET",
-                    "POST"
+                    "GET"
                 ]
             },
-            "backendUri": "https://dddsydney.search.windows.net/indexes/searchable-sessions/docs?api-version=2016-09-01&search={term}",
-            "requestOverrides": {
-                "backend.request.headers.api-key": "%AzureSearchAPIKey%"
-            }
+            "backendUri": "%FunctionWebsiteName%/api/v1/Get-Sessions/{year}"
         },
-        "Swagger": {
+        "Swagger v1": {
             "matchCondition": {
-                "route": "/.well-known/swagger",
+                "route": "/.well-known/v1/swagger",
                 "methods": [
                     "GET"
                 ]
             },
             "backendUri": "%FunctionWebsiteName%/api/v1/Get-Swagger?code=%FunctionApiKey%"
         },
-        "Get Session": {
+        "Get Session v1": {
             "matchCondition": {
                 "route": "/v1/session/{id}",
                 "methods": [
                     "GET"
                 ]
             },
-            "backendUri": "%FunctionWebsiteName%/api/v1/Get-Session?code=%FunctionApiKey%&id={id}"
+            "backendUri": "%FunctionWebsiteName%/api/v1/Get-Session/{id}"
         },
-        "Vote": {
+
+        "Get Sessions v2": {
             "matchCondition": {
-                "route": "/v1/vote/{year}",
+                "route": "/v2/sessions/{year}",
+                "methods": [
+                    "GET"
+                ]
+            },
+            "backendUri": "%FunctionWebsiteName%/api/v2/Get-Sessions/{year}"
+        },
+        "Swagger v2": {
+            "matchCondition": {
+                "route": "/.well-known/v2/swagger",
+                "methods": [
+                    "GET"
+                ]
+            },
+            "backendUri": "%FunctionWebsiteName%/api/v2/Get-Swagger?code=%FunctionApiKey%"
+        },
+        "Get Session v2": {
+            "matchCondition": {
+                "route": "/v2/session/{id}",
+                "methods": [
+                    "GET"
+                ]
+            },
+            "backendUri": "%FunctionWebsiteName%/api/v2/Get-Session/{id}"
+        },
+        "Vote v2": {
+            "matchCondition": {
+                "route": "/v2/vote/{year}",
                 "methods": [
                     "POST"
                 ]
             },
-            "backendUri": "%FunctionWebsiteName%/api/v1/Save-Vote?code=%FunctionApiKey%&year={year}"
+            "backendUri": "%FunctionWebsiteName%/api/v2/Save-Vote/{year}"
         }
     }
 }

@@ -4,7 +4,12 @@
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "EventStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-        "SessionizeApiKey": ""
+        "SessionizeApiKey": "",
+        "FunctionWebsiteName": "http://localhost:7071",
+        "FunctionApiKey": ""
     },
-    "ConnectionStrings": {}
+    "ConnectionStrings": {},
+    "Host": {
+        "CORS":  "*"
+    }
 }

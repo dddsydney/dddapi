@@ -12,7 +12,7 @@ let letsEncrypt
     (context: ExecutionContext)
     (code: string) =
 
-    let path = Path.Combine(context.FunctionDirectory, ".well-known", "acme-challenge", code)
+    let path = Path.Combine(context.FunctionDirectory, "..", "letsencrypt", ".well-known", "acme-challenge", code)
     
     match File.Exists path with
     | true ->

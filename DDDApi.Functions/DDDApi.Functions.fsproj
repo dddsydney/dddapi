@@ -10,6 +10,7 @@
     <Content Include="proxies.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Compile Include="LetsEncrypt.fs" />
     <Compile Include="v1\DocumentationFunctions.fs" />
     <Compile Include="v1\AgendaFunctions.fs" />
     <Compile Include="v1\SessionFunctions.fs" />

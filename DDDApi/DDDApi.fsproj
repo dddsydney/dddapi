@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
@@ -9,6 +9,7 @@
     <Compile Include="SessionResponse.fs" />
     <Compile Include="Array.fs" />
     <Compile Include="SessionizeApi.fs" />
+    <Compile Include="SlackWebhook.fs" />
     <Content Include="../sessionize-sample.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

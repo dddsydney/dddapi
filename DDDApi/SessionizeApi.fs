@@ -121,6 +121,9 @@ module SessionizeApi =
         |> Seq.map Insert
         |> autobatch
         |> List.map (inTableToClientAsBatch table)
+        |> ignore
+
+        newSessions
 
     let updateSessions (log: ILogger) (remoteSessions: array<SessionV2>) (existingSessions: seq<SessionV2>) table =
         let updatableSessions = existingSessions

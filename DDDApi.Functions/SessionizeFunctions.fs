@@ -4,10 +4,10 @@ open Microsoft.Extensions.Configuration
 open Microsoft.Azure.WebJobs
 open Microsoft.WindowsAzure.Storage.Table
 open DDDApi
-open DDDApi.azureTableUtils
 open DDDApi.SessionizeApi
 open FSharp.Azure.Storage.Table
 open Microsoft.Extensions.Logging
+open SlackWebhook
 
 module SessionizeFunctions =
     [<FunctionName("Download_Sessionzie_data")>]
@@ -37,7 +37,7 @@ module SessionizeFunctions =
                                    |> fromTableToClient sessionsSource
                                    |> Seq.map(fun (s, _) -> s)
 
-            let _ = addNewSessions log remoteSessions existingSessions sessionsSource
+            let newSessions = addNewSessions log remoteSessions existingSessions sessionsSource
             let _ = updateSessions log remoteSessions existingSessions sessionsSource
 
             let existingSpeakers = Query.all<Presenter>
@@ -52,8 +52,16 @@ module SessionizeFunctions =
             let _ = addNewSpeakers log remoteSpeakers existingSpeakers speakersSource
             let _ = updateSpeakers log remoteSpeakers existingSpeakers speakersSource
 
-            log.LogInformation("Writing to queue")
+            match Array.length newSessions with
+            | 0 -> return ignore()
+            | _ ->
+                let n = notifySessionsAdded config.["NewSessionNotificationWebhook"]
+                let! _ = newSessions
+                         |> Array.map (fun session ->
+                            let presenters = remoteSpeakers |> Array.filter(fun presenter -> presenter.TalkId = session.SessionizeId)
+                            n session presenters)
+                         |> Async.Parallel
 
-            return ignore()
+                return ignore()
         }
         |> Async.StartAsTask

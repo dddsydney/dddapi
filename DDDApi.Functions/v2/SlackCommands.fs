@@ -46,11 +46,11 @@ let sessionToApprovalMessage s presenters =
          Text = { Type = "plain_text"; Text = ":heavy_check_mark: Approve"; Emoji = true }
          Value = s.SessionizeId } }
 
-let sessionToViewMessage s presenters =
-    let presenterNames = presenters
-                         |> Seq.map (fun p -> p.FullName)
-                         |> String.concat ", "
-    sprintf "(%s) _%s_ by *%s*" s.SessionizeId s.Title presenterNames
+let sessionToViewMessage session presenters =
+    presenters
+    |> Seq.map (fun p -> p.FullName)
+    |> String.concat ", "
+    |> sprintf "(%s) _%s_ by *%s*" session.SessionizeId session.Title
 
 let sessionToDetailMessage s presenters =
     let presenterNames = presenters
@@ -59,7 +59,7 @@ let sessionToDetailMessage s presenters =
     { BlockType = "section"
       TextBlock =
        { Type = "mrkdwn"
-         Text = sprintf "_%s_ by *%s*\r\n%s\r\n>Topic: %s\r\nTrack: %s\r\nLength: %s" s.Title presenterNames s.Abstract s.Topic s.Track s.SessionLength } }
+         Text = sprintf "_%s_ by *%s*\r\n%s\r\n> Topic: %s\r\n> Track: %s\r\n> Length: %s" s.Title presenterNames s.Abstract s.Topic s.Track s.SessionLength } }
 
 type SlackMessageWithAccessory =
     { Text: string
@@ -101,8 +101,8 @@ type SlackMessageTextOnly =
 
 [<FunctionName("Slack_Approved_Sessions")>]
 let approvedSessionsCommand ([<HttpTrigger(AuthorizationLevel.Function, "post", Route = "v2/Slack-ApprovedSession")>] req: HttpRequest)
-                              ([<Table("Session", Connection = "EventStorage")>] sessionsTable)
-                              ([<Table("Presenter", Connection = "EventStorage")>] presentersTable) =
+                            ([<Table("Session", Connection = "EventStorage")>] sessionsTable)
+                            ([<Table("Presenter", Connection = "EventStorage")>] presentersTable) =
      async {
          let year = req.Form.["text"].[0]
 

@@ -15,7 +15,7 @@ type VotePeriod =
     { Start: DateTimeOffset
       End: DateTimeOffset }
 
-let AESTOffset = TimeSpan.FromHours(8.0)
+let AESTOffset = TimeSpan.FromHours(10.0)
 
 let Voting2018 =
     { Start = DateTimeOffset(2018, 06, 14, 08, 00, 00, 00, AESTOffset);

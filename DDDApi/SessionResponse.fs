@@ -62,7 +62,7 @@ module ResponseSessionMapper =
         TrackType = session.Track
         Tags = match session.Topic with
                | null -> [||]
-               | _ -> session.Topic.Split(',')
+               | _ -> session.Topic.Split(',') |> Array.map(fun s -> s.Trim())
         Presenters = presenters
                      |> Seq.map(fun p ->
                         { FirstName = p.FirstName

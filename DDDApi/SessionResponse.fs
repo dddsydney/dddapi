@@ -36,7 +36,8 @@ type ResponseSessionV2 =
       [<field: DataMember(Name="Year")>]Year: string
       [<field: DataMember(Name="TrackType")>]TrackType: string
       [<field: DataMember(Name="SessionLength")>]SessionLength: string
-      [<field: DataMember(Name="Presenters")>]Presenters: ResponsePresenter[] }
+      [<field: DataMember(Name="Presenters")>]Presenters: ResponsePresenter array
+      [<field: DataMember(Name="Tags")>]Tags: string array }
 
 module ResponseSessionMapper =
   let sessionToResult (session: Session) = { Id = session.RowKey;
@@ -59,6 +60,9 @@ module ResponseSessionMapper =
         Year = session.EventYear
         SessionLength = session.SessionLength
         TrackType = session.Track
+        Tags = match session.Topic with
+               | null -> [||]
+               | _ -> session.Topic.Split(',')
         Presenters = presenters
                      |> Seq.map(fun p ->
                         { FirstName = p.FirstName

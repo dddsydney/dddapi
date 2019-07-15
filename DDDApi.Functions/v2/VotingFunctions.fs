@@ -10,12 +10,15 @@ open System.IO
 open Newtonsoft.Json
 open FSharp.Azure.Storage.Table
 open DDDApi
-open DDDApi.azureTableUtils
 open Microsoft.AspNetCore.Mvc
 
 type UserVote =
     { TicketNumber: string
-      SessionIds: array<string> }
+      SessionIds: array<string>
+      Indices: int array
+      VoterSessionId: string
+      VotingStartTime: string
+      Id: string }
 
 let getIpAddress (req: HttpRequest) =
     let ip = req.HttpContext.Connection.RemoteIpAddress.MapToIPv4()
@@ -55,7 +58,10 @@ let saveVote([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v2/Sav
                                           SessionId = id
                                           IpAddress = ipAddress
                                           SubmittedDateUTC = DateTimeOffset.Now
-                                          TicketNumber = userVote.TicketNumber }
+                                          TicketNumber = userVote.TicketNumber
+                                          Id = userVote.Id
+                                          VoterSessionId = userVote.VoterSessionId
+                                          VotingStartTime = userVote.VotingStartTime }
                                     vote |> Insert)
                 let! _ = votes
                          |> autobatch

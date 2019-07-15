@@ -9,7 +9,10 @@ type Vote =
       IpAddress: string
       SessionId: string
       SubmittedDateUTC: DateTimeOffset
-      TicketNumber: string }
+      TicketNumber: string
+      VoterSessionId: string
+      Id: string
+      VotingStartTime: string }
 
 type VotePeriod =
     { Start: DateTimeOffset

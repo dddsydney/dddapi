@@ -32,13 +32,15 @@ type VoteResult =
        Track: string}
 
 let countVotes votes sessions presenters =
-  let presenterNames = presenters
-                       |> Seq.map (fun (p, _) -> p.FullName)
-                       |> String.concat ", "
   votes
   |> Seq.filter(fun (vote, _) -> vote |> voteExists sessions)
   |> Seq.map(fun (vote, _) -> 
             let (session, _) = sessions |> Seq.find(fun (session, _) -> session.SessionizeId = vote.SessionId)
+            let presenterNames =
+                presenters
+                |> Seq.filter (fun (p, _) -> p.TalkId = session.SessionizeId)
+                |> Seq.map (fun (p, _) -> p.FullName)
+                |> String.concat ", "
             { Title = session.Title
               Presenter = presenterNames
               TrackLength = session.SessionLength
@@ -60,18 +62,23 @@ let countVotes votes sessions presenters =
    |> Seq.sortByDescending(fun r -> r.TotalVotes)
 
 let formatVotes countedVotes =
-    let titleLength = countedVotes |> Seq.map(fun v -> v.Title.Length) |> Seq.sortByDescending id |> Seq.head
-    let presenterLength = countedVotes |> Seq.map(fun v -> v.Presenter.Length) |> Seq.sortByDescending id |> Seq.head
-    let pv =
-        match Seq.length countedVotes with
-        | 0 -> "No Votes"
-        | _ ->
+    match Seq.length countedVotes with
+    | 0 -> "No Votes yet :("
+    | _ ->
+        let titleLength =
             countedVotes
-            |> Seq.map (fun v -> sprintf "%5d | %3d | %4d | %-*s | %-*s | %s" v.TotalVotes v.TicketHolderVotes v.NonTicketHolderVotes titleLength v.Title presenterLength v.Presenter v.TrackLength)
-            |> String.concat "\r\n"
-
-    sprintf "Total | THV | NTHV | %-*s | %-*s | Session Length\r\n%s" titleLength "Title" presenterLength "Presenter" pv
-
+            |> Seq.map(fun v -> v.Title.Length)
+            |> Seq.sortByDescending id
+            |> Seq.head
+        let presenterLength =
+            countedVotes
+            |> Seq.map(fun v -> v.Presenter.Length)
+            |> Seq.sortByDescending id
+            |> Seq.head
+        countedVotes
+        |> Seq.map (fun v -> sprintf "%5d | %3d | %4d | %-*s | %-*s | %s" v.TotalVotes v.TicketHolderVotes v.NonTicketHolderVotes titleLength v.Title presenterLength v.Presenter v.TrackLength)
+        |> String.concat "\r\n"
+        |> sprintf "Total | THV | NTHV | %-*s | %-*s | Session Length\r\n%s" titleLength "Title" presenterLength "Presenter"
 
 [<FunctionName("Slack_Get_Votes_Summary")>]
 let getVotesSummary
@@ -80,45 +87,43 @@ let getVotesSummary
     ([<Table("Presenter", Connection = "EventStorage")>] presentersTable)
     ([<Table("Vote", Connection = "EventStorage")>]votesTable) =
 
-    async {
-        let year = req.Form.["text"].[0]
+    let year = req.Form.["text"].[0]
 
-        let! votes =
-            Query.all<Vote>
-            |> Query.where<@ fun v _ -> v.Year = year @>
-            |> fromTableToClientAsync votesTable
+    let votes =
+        Query.all<Vote>
+        |> Query.where<@ fun v _ -> v.Year = year @>
+        |> fromTableToClient votesTable
 
-        let! sessions =
-            Query.all<SessionV2>
-            |> Query.where <@ fun s _ -> s.EventYear = year && s.Status = "Approved" @>
-            |> fromTableToClientAsync sessionsTable
+    let sessions =
+        Query.all<SessionV2>
+        |> Query.where <@ fun s _ -> s.EventYear = year && s.Status = "Approved" @>
+        |> fromTableToClient sessionsTable
 
-        let! presenters = 
-            Query.all<Presenter>
-            |> Query.where<@ fun p _ -> p.EventYear = year @>
-            |> fromTableToClientAsync presentersTable
+    let presenters = 
+        Query.all<Presenter>
+        |> Query.where<@ fun p _ -> p.EventYear = year @>
+        |> fromTableToClient presentersTable
 
-        let voteBreakdown = countVotes votes sessions presenters
+    let voteBreakdown = countVotes votes sessions presenters
 
-        let devVotes =
-            voteBreakdown
-            |> Seq.filter (fun vote -> vote.Track = "Development")
-            |> Seq.truncate 10
+    let devVotes =
+        voteBreakdown
+        |> Seq.filter (fun vote -> vote.Track = "Development")
+        |> Seq.truncate 10
 
-        let jdVotes =
-            voteBreakdown
-            |> Seq.filter (fun vote -> vote.Track = "Junior Dev")
-            |> Seq.truncate 5
+    let jdVotes =
+        voteBreakdown
+        |> Seq.filter (fun vote -> vote.Track = "Junior Dev")
+        |> Seq.truncate 5
 
-        let dataDesignVotes =
-            voteBreakdown
-            |> Seq.filter (fun vote -> vote.Track = "Data" || vote.Track = "Design")
-            |> Seq.truncate 5
+    let dataDesignVotes =
+        voteBreakdown
+        |> Seq.filter (fun vote -> vote.Track = "Data" || vote.Track = "Design")
+        |> Seq.truncate 5
 
-        return OkObjectResult(
-            sprintf ":mega: Dev\r\n%s\r\n:mega: Junior Dev\r\n%s\r\n:mega: Data & Design\r\n%s"
-                (formatVotes devVotes)
-                (formatVotes jdVotes)
-                (formatVotes dataDesignVotes)
-        ) :> IActionResult
-    } |> Async.StartAsTask
+    OkObjectResult(
+        sprintf ":mega: Dev\r\n%s\r\n:mega: Junior Dev\r\n%s\r\n:mega: Data & Design\r\n%s"
+            (formatVotes devVotes)
+            (formatVotes jdVotes)
+            (formatVotes dataDesignVotes)
+    ) :> IActionResult

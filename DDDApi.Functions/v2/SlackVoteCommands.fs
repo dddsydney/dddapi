@@ -45,7 +45,9 @@ let countVotes votes sessions presenters =
               Presenter = presenterNames
               TrackLength = session.SessionLength
               SessionId = session.SessionizeId
-              TicketVote = vote.TicketNumber = ""
+              TicketVote = match vote.TicketNumber with
+                           | null | "" -> false
+                           | _ -> true
               Track = session.Track })
   |> Seq.groupBy(fun r -> r.Title)
   |> Seq.map(fun (key, sessionVote) ->
@@ -78,7 +80,7 @@ let formatVotes countedVotes =
         countedVotes
         |> Seq.map (fun v -> sprintf "%5d | %3d | %4d | %-*s | %-*s | %s" v.TotalVotes v.TicketHolderVotes v.NonTicketHolderVotes titleLength v.Title presenterLength v.Presenter v.TrackLength)
         |> String.concat "\r\n"
-        |> sprintf "Total | THV | NTHV | %-*s | %-*s | Session Length\r\n%s" titleLength "Title" presenterLength "Presenter"
+        |> sprintf "```\r\nTotal | THV | NTHV | %-*s | %-*s | Session Length\r\n%s\r\n```" titleLength "Title" presenterLength "Presenter"
 
 [<FunctionName("Slack_Get_Votes_Summary")>]
 let getVotesSummary

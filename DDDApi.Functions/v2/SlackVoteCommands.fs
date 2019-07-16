@@ -31,6 +31,10 @@ type VoteResult =
        NonTicketHolderVotes: int
        Track: string}
 
+type SlackMessage =
+    { Text: string
+      response_type: string }
+
 let countVotes votes sessions presenters =
   votes
   |> Seq.filter(fun (vote, _) -> vote |> voteExists sessions)
@@ -123,9 +127,14 @@ let getVotesSummary
         |> Seq.filter (fun vote -> vote.Track = "Data" || vote.Track = "Design")
         |> Seq.truncate 5
 
-    OkObjectResult(
-        sprintf ":mega: Dev\r\n%s\r\n:mega: Junior Dev\r\n%s\r\n:mega: Data & Design\r\n%s"
+    let txt =
+        sprintf
+            ":mega: Dev\r\n%s\r\n:mega: Junior Dev\r\n%s\r\n:mega: Data & Design\r\n%s"
             (formatVotes devVotes)
             (formatVotes jdVotes)
             (formatVotes dataDesignVotes)
+
+    OkObjectResult(
+        { Text = txt
+          response_type = "in_channel" }
     ) :> IActionResult

@@ -7,6 +7,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DDDApi.Functions", "DDDApi.
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DDDApi", "DDDApi\DDDApi.fsproj", "{4DBB3B26-87BD-4565-9C18-DFE25AD2E024}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DDDApi.Tests", "DDDApi.Tests\DDDApi.Tests.fsproj", "{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{4DBB3B26-87BD-4565-9C18-DFE25AD2E024}.Release|x64.Build.0 = Release|Any CPU
 		{4DBB3B26-87BD-4565-9C18-DFE25AD2E024}.Release|x86.ActiveCfg = Release|Any CPU
 		{4DBB3B26-87BD-4565-9C18-DFE25AD2E024}.Release|x86.Build.0 = Release|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Debug|x64.Build.0 = Debug|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Debug|x86.Build.0 = Debug|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Release|x64.ActiveCfg = Release|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Release|x64.Build.0 = Release|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Release|x86.ActiveCfg = Release|Any CPU
+		{03755475-2ACD-4F6B-81CD-5D96DD7CEAEC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

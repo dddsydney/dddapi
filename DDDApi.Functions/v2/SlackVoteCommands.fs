@@ -82,6 +82,16 @@ let formatVotes countedVotes =
         |> String.concat "\r\n"
         |> sprintf "```\r\nTotal | THV | NTHV | %-*s | %-*s | Session Length\r\n%s\r\n```" titleLength "Title" presenterLength "Presenter"
 
+let extractFields (reqText:string) = 
+    match reqText.Split(' ') with
+    | [|year; gender|] -> (year, Some gender)
+    | [|year|] -> (year, None)
+
+let filterPresenter presenter (pronoun:string option) = 
+    match pronoun with
+    | p when p.IsNone -> true
+    | p when p.IsSome  -> presenter.PreferredPronoun = pronoun.Value
+
 [<FunctionName("Slack_Get_Votes_Summary")>]
 let getVotesSummary
     ([<HttpTrigger(AuthorizationLevel.Function, "post", Route = "v2/Slack-Votes")>] req: HttpRequest)
@@ -89,7 +99,7 @@ let getVotesSummary
     ([<Table("Presenter", Connection = "EventStorage")>] presentersTable)
     ([<Table("Vote", Connection = "EventStorage")>]votesTable) =
 
-    let year = req.Form.["text"].[0]
+    let year, pronoun = extractFields req.Form.["text"].[0]
 
     let votes =
         Query.all<Vote>
@@ -104,6 +114,7 @@ let getVotesSummary
     let presenters = 
         Query.all<Presenter>
         |> Query.where<@ fun p _ -> p.EventYear = year @>
+        |> Query.where<@ fun p _ -> filterPresenter p pronoun @>
         |> fromTableToClient presentersTable
 
     let voteBreakdown = countVotes votes sessions presenters

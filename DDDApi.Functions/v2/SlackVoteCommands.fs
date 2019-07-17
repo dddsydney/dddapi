@@ -43,7 +43,7 @@ let countVotes votes sessions presenters =
             let presenterNames =
                 presenters
                 |> Seq.filter (fun (p, _) -> p.TalkId = session.SessionizeId)
-                |> Seq.map (fun (p, _) -> p.FullName)
+                |> Seq.map (fun (p, _) -> (sprintf "%s (%s)" p.FullName p.PreferredPronoun))
                 |> String.concat ", "
             { Title = session.Title
               Presenter = presenterNames

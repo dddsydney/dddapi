@@ -115,17 +115,17 @@ let getVotesSummary
     let devVotes =
         voteBreakdown
         |> Seq.filter (fun vote -> vote.Track = "Development")
-        |> Seq.truncate 10
+        |> Seq.truncate 20
 
     let jdVotes =
         voteBreakdown
         |> Seq.filter (fun vote -> vote.Track = "Junior Dev")
-        |> Seq.truncate 5
+        |> Seq.truncate 15
 
     let dataDesignVotes =
         voteBreakdown
         |> Seq.filter (fun vote -> vote.Track = "Data" || vote.Track = "Design")
-        |> Seq.truncate 5
+        |> Seq.truncate 15
 
     let txt =
         sprintf
